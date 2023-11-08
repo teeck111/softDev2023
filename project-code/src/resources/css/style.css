@@ -1,5 +1,14 @@
 .title {
-    background-color: tan;
-    color: maroon;
+    font-weight: bold;
     border: 2px solid rgb(149, 125, 94);
+}
+
+.home-color {
+    color: rgb(3, 67, 3);
+    font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
+
+}
+
+.container{
+    background-color: rgb(190, 174, 174);
 }
