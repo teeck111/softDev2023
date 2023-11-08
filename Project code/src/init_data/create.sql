@@ -16,7 +16,19 @@ CREATE TABLE recipes (
             REFERENCES users(user_id)
 );
 
+CREATE TABLE users_to_ingredients (
+    user_id INT,
+    ingredient_id INT,
+
+    CONSTRAINT fk_user_id
+        FOREIGN KEY(user_id)
+            REFERENCES users(user_id),
+    CONSTRAINT fk_ingredient_id
+        FOREIGN KEY(ingredient_id)
+            REFERENCES ingredients(ingredient_id)
+);
+
 CREATE TABLE ingredients (
-    user_id INT NOT NULL,
-    ingredient VARCHAR(45)
+    ingredient_id INT PRIMARY KEY SERIAL,
+    ingredient_text VARCHAR(45) NOT NULL
 );
