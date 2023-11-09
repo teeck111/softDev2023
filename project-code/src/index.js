@@ -57,5 +57,9 @@ app.get("/register", (req, res) => {
     res.render("pages/register.ejs");
 })
 
+app.get('/welcome', (req, res) => {
+  res.json({status: 'success', message: 'Welcome!'});
+});
+
 app.listen(3000);
 console.log("Server listening on port 3000");
