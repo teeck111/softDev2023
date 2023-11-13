@@ -57,6 +57,10 @@ app.get("/register", (req, res) => {
     res.render("pages/register.ejs");
 })
 
+app.get('/kitchen', (req, res) => {
+  res.render("pages/kitchen.ejs");
+});
+
 app.get('/welcome', (req, res) => {
   res.json({status: 'success', message: 'Welcome!'});
 });
