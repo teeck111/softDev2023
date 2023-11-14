@@ -4,6 +4,8 @@ const pgp = require("pg-promise")();
 const bodyParser = require("body-parser");
 const session = require("express-session");
 
+
+
 // db config
 const dbConfig = {
   host: "db",
@@ -28,6 +30,7 @@ db.connect()
 
 // set the view engine to ejs
 app.set("view engine", "ejs");
+app.use(express.static(__dirname + '/')); 
 app.use(bodyParser.json());
 
 // set session
