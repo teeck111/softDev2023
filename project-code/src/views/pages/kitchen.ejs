@@ -1,6 +1,35 @@
 <%- include ('../partials/header') %>
 <%- include ('../partials/menu') %>
 
+<main>
+    <div class="container-fluid" style="max-width:1000px">
+        <h1>Welcome to the kitchen!</h1>
+        <div class="col-8">
+            <form>
+                <div class="form-group">
+                    <label for="prompt">Prompt:</label>
+                    <input type="text" class="form-control" name="prompt">
+                </div>
+        </div>
+        <div class="col-4">
+            <table class="table container-fluid">
+                <thead>
+                    <tr><h3>Past Recipies</h3></tr>
 
+                </thead>
+                <tbody>
+                    <tr>Recipe One</tr>
+                    <tr>Recipe Two</tr>
+                    <tr>Recipe Three</tr>
+                    <tr>Recipe Four</tr>
+                    <tr>Recipe Five</tr>
+                    <tr>Recipe Six</tr>
+
+                </tbody>
+            </table>
+        </div>
+      </form>
+    </div>
+  </main>
 
 <%- include ('../partials/footer') %>
