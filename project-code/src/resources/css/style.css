@@ -2,27 +2,61 @@
     font-weight: bold;
     margin-top: 40px;
     margin-bottom: 45px;
+    
 }
-
+h1{
+    font-size: 55px;
+}
 .home-color {
+    color: #FFFDF7;
 
-    color: rgb(6, 86, 6);
-    font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
+    font-family: Cochiin;
 
 }
 
 body {
-    background-color: rgb(235, 225, 225);
+    
+    background-color: #0A703C;
 }
 
 .info {
+    line-height: 40px;
     margin-top: 40px;
     margin-bottom: 20px;
 }
 
 .reg {
-    margin-bottom: 50px;
-    border: 2px solid black; 
-    border-radius: 3px;
+    color: #FFFDF7;
+    margin-bottom: 80px;
+    border: 5px solid #FFFDF7; 
+    border-radius: 5px;
 }
 
+h3 {
+font-size: 40px;
+margin-bottom: 15px;
+}
+
+p {
+font-size: 20px;
+}
+
+.center{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+     height: 200px;
+}
+a {
+    color: inherit;
+    text-decoration: inherit;
+}
+
+
+.hover{
+    color: #FFFDF7;
+}
+
+.hover:hover{
+    font-size: 110%;
+}
