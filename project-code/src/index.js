@@ -107,5 +107,6 @@ app.get('/welcome', (req, res) => {
   res.json({status: 'success', message: 'Welcome!'});
 });
 
+
 app.listen(3000);
 console.log("Server listening on port 3000");
