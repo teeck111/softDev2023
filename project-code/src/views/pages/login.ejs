@@ -4,14 +4,15 @@
 <main>
   <div class="container">
     <h1>Login</h1>
+    <%- include ('../partials/message') %>
     <form action="/login" method="POST">
         <div class="form-group">
-            <label for="username">Username:</label>
+            <label for="username">Username or Email:</label>
             <input type="username" class="form-control" name="username">
         </div>
         <div class="form-group">
             <label for="password">Password:</label>
-            <input type="text" class="form-control" name="password">
+            <input type="password" class="form-control" name="password">
         </div>
         <br>
         <p style="display: inline;">Don't have an account?</p>

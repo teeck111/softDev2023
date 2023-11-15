@@ -1,14 +1,28 @@
 .title {
     font-weight: bold;
-    border: 2px solid rgb(149, 125, 94);
+    margin-top: 40px;
+    margin-bottom: 45px;
 }
 
 .home-color {
-    color: rgb(3, 67, 3);
+
+    color: rgb(6, 86, 6);
     font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
 
 }
 
-.container{
-    background-color: rgb(190, 174, 174);
+body {
+    background-color: rgb(235, 225, 225);
 }
+
+.info {
+    margin-top: 40px;
+    margin-bottom: 20px;
+}
+
+.reg {
+    margin-bottom: 50px;
+    border: 2px solid black; 
+    border-radius: 3px;
+}
+
