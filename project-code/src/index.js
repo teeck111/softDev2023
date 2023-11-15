@@ -103,7 +103,6 @@ app.get('/welcome', (req, res) => {
   res.json({status: 'success', message: 'Welcome!'});
 });
 
-/*
 // aws bedrock api call
 
 
@@ -150,7 +149,7 @@ app.post("/api/bedrock", async (req, res) => {
     res.status(500).json({ message: 'Error invoking the model' });
   }
 });
-*/
+
 
 app.listen(3000);
 console.log("Server listening on port 3000");
