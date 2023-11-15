@@ -112,7 +112,7 @@ app.get('/welcome', (req, res) => {
 
 // maybe there's a better way to do this,
 // not sure tho as I'm still figuring it out
-const AWS = require("aws-sdk");
+/*const AWS = require("aws-sdk");
 
 // Configure AWS with credentials
 // probably need to find a safer way to do this
@@ -151,7 +151,7 @@ app.post("/api/bedrock", async (req, res) => {
     console.error(error);
     res.status(500).json({ message: 'Error invoking the model' });
   }
-});
+}); */
 
 app.listen(3000);
 console.log("Server listening on port 3000");
