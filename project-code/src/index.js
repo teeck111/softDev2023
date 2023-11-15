@@ -113,7 +113,6 @@ app.get('/welcome', (req, res) => {
 // maybe there's a better way to do this,
 // not sure tho as I'm still figuring it out
 const AWS = require("aws-sdk");
-const bodyParser = require("body-parser");
 
 // Configure AWS with credentials
 // probably need to find a safer way to do this
