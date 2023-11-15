@@ -2,33 +2,64 @@
 <%- include ('../partials/menu') %>
 
 <main>
-    <div class="container-fluid" style="max-width:1000px">
-        <h1>Welcome to the kitchen!</h1>
-        <div class="col-8">
-            <form>
-                <div class="form-group">
-                    <label for="prompt">Prompt:</label>
-                    <input type="text" class="form-control" name="prompt">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-8">
+                <div class="row p-3 bg-success-subtle" style="height: 300px">
+                    <div class="container-lg border border-success bg-light rounded">
+                        <p>API Response</p>
+
+                    </div>
+                        
                 </div>
-        </div>
-        <div class="col-4">
-            <table class="table container-fluid">
-                <thead>
-                    <tr><h3>Past Recipies</h3></tr>
+                <div class="row p-3 bg-success-subtle" style="height: 75px">
+                    <form action="/kitchen" method="GET">
+                        <div class="row mb-3">
+                          <label for="prompt" class="col-2 col-form-label">Prompt:</label>
+                          <div class="col-8">
+                            <input type="text" class="form-control border border-success" id="prompt" name="prompt">
+                  
+                          </div>
+                          <div class="col-sm-2"><button type="submit" class="btn btn-outline-dark">Create</button></div>
+                          
+                        </div>
+                        
+                      </form>
 
-                </thead>
-                <tbody>
-                    <tr>Recipe One</tr>
-                    <tr>Recipe Two</tr>
-                    <tr>Recipe Three</tr>
-                    <tr>Recipe Four</tr>
-                    <tr>Recipe Five</tr>
-                    <tr>Recipe Six</tr>
-
-                </tbody>
-            </table>
+                </div>
+                
+            </div>
+            <div class="col bg-success-subtle border-start border-4 border-dark" style="max-height: 100%">
+                <div class="mt-3 card p-3 bg-success">
+                    <table class="table-success-subtle">
+                        <thead>
+                            <tr>
+                            <th scope="col"><h3>Past Recipes</h3></th>
+                
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Recipe One</td>
+    
+                            </tr>
+                            <tr>
+                                <td>Recipe Two</td>
+    
+                            </tr>
+                            <tr>
+                                <td>Recipe Three</td>
+    
+                            </tr>
+                            <tr>
+                                <td>Recipe Four</td>
+    
+                            </tr>
+                        </tbody>
+                        </table>
+                </div>
+            </div>
         </div>
-      </form>
     </div>
   </main>
 
