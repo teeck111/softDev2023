@@ -107,6 +107,51 @@ app.get('/welcome', (req, res) => {
   res.json({status: 'success', message: 'Welcome!'});
 });
 
+// aws bedrock api call
+
+
+// maybe there's a better way to do this,
+// not sure tho as I'm still figuring it out
+/*const AWS = require("aws-sdk");
+
+// Configure AWS with credentials
+// probably need to find a safer way to do this
+AWS.config.update({
+  accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+  secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+  region: process.env.AWS_REGION,
+});
+
+// Creating the bedrock service object
+const bedrock = new AWS.BedrockRuntime();
+
+// parses JSON-formatted request bodies 
+// makes the data readily available in a structured format under req.body
+app.use(bodyParser.json());
+
+// Defining the Bedrock API route
+app.post("/api/bedrock", async (req, res) => {
+  const { query } = req.body; // collecting the query params from body, this will be passed to the ai model
+
+  // query changes will need to be made, context before and other inputs will need to be added.
+  // We can work this out as a group to our liking
+  try {
+    const params = {
+      accept: 'application/json',
+      body: JSON.stringify({
+        prompt: query
+      }),
+      contentType: 'application/json',
+      modelId: 'anthropic.claude-instant-v1', // could be replaced with claude v2, we'll see what works best :)
+    };
+
+    const result = await bedrock.invokeModel(params).promise();
+    res.status(200).json(result); // we'll use this  to display result later
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Error invoking the model' });
+  }
+});
 
 app.listen(3000);
 console.log("Server listening on port 3000");
