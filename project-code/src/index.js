@@ -3,6 +3,9 @@ const app = express();
 const pgp = require("pg-promise")();
 const bodyParser = require("body-parser");
 const session = require("express-session");
+const bcrypt = require("bcrypt");
+
+
 
 // db config
 const dbConfig = {
@@ -28,6 +31,7 @@ db.connect()
 
 // set the view engine to ejs
 app.set("view engine", "ejs");
+app.use(express.static(__dirname + '/')); 
 app.use(bodyParser.json());
 
 // set session
@@ -149,7 +153,6 @@ app.post("/api/bedrock", async (req, res) => {
     res.status(500).json({ message: 'Error invoking the model' });
   }
 });
-
 
 app.listen(3000);
 console.log("Server listening on port 3000");
