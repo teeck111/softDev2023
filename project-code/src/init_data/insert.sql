@@ -99,3 +99,10 @@ INSERT INTO users (email, username, password) VALUES
 ('xmbr6665@colorado.edu', 'svvakiymlo63', '$2b$10$HNU.vJ8g8AkHifavzwTw8uQSI.AC2KQ0YjzV4iSJKgflLYjlqux7m'),
 ('vrbg9796@colorado.edu', 'foxvflbvcc56', '$2b$10$HNU.vJ8g8AkHifavzwTw8uQSI.AC2KQ0YjzV4iSJKgflLYjlqux7m'),
 ('rbgx9416@colorado.edu', 'yepyqygfyh42', '$2b$10$HNU.vJ8g8AkHifavzwTw8uQSI.AC2KQ0YjzV4iSJKgflLYjlqux7m');
+
+INSERT INTO ingredients (ingredient_text) VALUES 
+('Chicken'),
+('Rice'),
+('Beans'),
+('Tomato'),
+('Onion');

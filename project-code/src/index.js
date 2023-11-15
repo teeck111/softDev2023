@@ -107,6 +107,26 @@ app.get('/welcome', (req, res) => {
   res.json({status: 'success', message: 'Welcome!'});
 });
 
+app.get('/pantry', (req, res) => {
+  const all_user_ingredients = `SELECT DISTINCT i.ingredients_text
+                                FROM users_to_ingredients u_to_i
+                                JOIN ingredients i ON u_to_i.ingredient_id=i.ingredient_id
+                                WHERE u_to_i.user_id=$1;`;
+  db.any(all_user_ingredients, [req.session.user.user_id])
+    .then((ingredients) => {
+      res.render("pages/pantry.ejs", {
+        ingredients,
+      });
+    })
+    .catch((err) => {
+      res.render("pages/pantry.ejs", {
+        ingredients: [],
+        error: true,
+        message: err.message,
+      });
+    });
+});
+
 // aws bedrock api call
 
 
@@ -152,6 +172,7 @@ app.post("/api/bedrock", async (req, res) => {
     res.status(500).json({ message: 'Error invoking the model' });
   }
 });
+*/
 
 app.listen(3000);
-console.log("Server listening on port 3000");
+console.log("Server listening on port 3000"); 
