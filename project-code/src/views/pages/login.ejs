@@ -2,8 +2,8 @@
 <%- include ('../partials/menu') %>
 
 <main>
-  <div class="container title home-color">
-    <h1>Login</h1>
+  <div class="container home-color">
+    <h1 class="title">Login</h1>
     <%- include ('../partials/message') %>
     <form action="/login" method="POST">
         <div class="form-group">
@@ -16,7 +16,7 @@
         </div>
         <br>
         <p style="display: inline;">Don't have an account?</p>
-        <a href="/register" style="display: inline;">Register</a>
+        <a href="/register" class="hover" style="display: inline;">Register</a>
         <br>
         <button type="submit" class="btn btn-primary">Login</button>
     </form>
