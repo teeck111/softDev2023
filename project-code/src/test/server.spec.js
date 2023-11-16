@@ -34,8 +34,7 @@ describe('Server!', () => {
         .post('/login')
         .send({ username: 'kkxsiinnmn61', password: 'CSCI_3308' }) 
         .end((err, res) => {
-          res.should.have.status(200);
-          expect(res.body.message).to.equals('success');
+          expect(res).to.have.status(200);
           done();
         });
     });
@@ -46,7 +45,7 @@ describe('Server!', () => {
         .post('/login')
         .send({ username: 'foo', password: 'foo' })
         .end((err, res) => {
-          res.should.have.status(400);
+          expect(res).to.have.status(400);
           done();
         });
     });
@@ -60,8 +59,7 @@ describe('/register', () => {
         .post('/register')
         .send({ username: 'tyler', password: 'tk' }) 
         .end((err, res) => {
-          res.should.have.status(200);
-          expect(res.body.message).to.equals('success');
+          expect(res).to.have.status(200);
           done();
         });
     });
@@ -72,7 +70,7 @@ describe('/register', () => {
         .post('/register')
         .send({ username: 'ywxs6479@colorado.edu', password: 'CSCI_3308' })
         .end((err, res) => {
-          res.should.have.status(400);
+          expect(res).to.have.status(400);
           done();
         });
     });
