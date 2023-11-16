@@ -22,7 +22,32 @@ describe('Server!', () => {
         done();
       });
   });
-
+},
   // ===========================================================================
   // TO-DO: Part A Login unit test case
-});
+
+  describe('positive: /login', () => {
+
+    // Positive test case
+    it('should log in a user with valid credentials', (done) => {
+      chai.request(server)
+        .post('/login')
+        .send({ username: 'kkxsiinnmn61', password: 'CSCI_3308' }) 
+        .end((err, res) => {
+          res.should.have.status(200);
+          expect(res.body.message).to.equals('success');
+          done();
+        });
+    });
+
+    //negative test case
+    it('negative: /login', (done) => {
+      chai.request(server)
+        .post('/login')
+        .send({ username: 'foo', password: 'foo' })
+        .end((err, res) => {
+          res.should.have.status(400);
+          done();
+        });
+    });
+}));

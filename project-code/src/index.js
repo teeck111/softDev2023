@@ -57,6 +57,7 @@ app.get("/login", (req, res) => {
     res.render("pages/login.ejs");
 });
 
+
 app.post("/login", async (req, res) => {
   if (req.body.username == undefined || req.body.password == undefined || req.body.username.length == 0 || req.body.password.length == 0){
       res.render("pages/login", {message: "Please enter a username and password.", error: true});
@@ -74,11 +75,13 @@ app.post("/login", async (req, res) => {
   try {
     user = await db.any(user_sql, [username]);
     if (user.length == 0){
+        res.status(400);
         res.render("pages/login", {message: "Incorrect username or password.", error: true});
         return true;
     }
   }
   catch(ex) {
+    res.status(400);
     res.render("pages/login", {message: "An internal error occured.", error: true});
     console.error(ex);
     return true;
@@ -89,8 +92,9 @@ app.post("/login", async (req, res) => {
   if (match){
       req.session.user = user[0];
       req.session.save();
-      return res.redirect("/kitchen");
-  } else {
+      return res.status(200).json({ message: "success", redirect: "/kitchen" });
+    } else {
+      res.status(400);
       res.render("pages/login", {message: "Incorrect username or password.", error: true});
   }
 })
@@ -104,6 +108,26 @@ const auth = (req, res, next) => {
 };
 
 app.use(auth);
+
+app.post("/register", async (req, res) => {
+  const hash = await bcrypt.hash(req.body.password, 10);
+  const query = 'INSERT INTO users(username, password) VALUES ($1,$2)';
+  const query2 = `SELECT * FROM users WHERE username = '${req.body.username}';`
+
+  db.one(query2)
+  .then(function(){
+    res.redirect('/login');
+  })
+  .catch(error => {
+    db.any(query, [
+      req.body.username,
+      hash
+    ])
+    res.redirect("/login")
+  })
+  
+  res.render("pages/register");
+});
 
 app.get("/register", (req, res) => {
     res.render("pages/register.ejs");
@@ -171,6 +195,9 @@ app.post("/pantry/add", async (req, res) => {
                         ($1, $2);`;
   var updated_ingredients = await db.none(add_query, [req.session.user.user_id, req.body.ingredient_id]);
   return res.redirect("/pantry");
+
+app.get('/favorites', (req, res) => {
+  res.render("pages/favorites.ejs");
 });
 
 // aws bedrock api call
@@ -178,6 +205,7 @@ app.post("/pantry/add", async (req, res) => {
 
 // maybe there's a better way to do this,
 // not sure tho as I'm still figuring it out
+
 /*const AWS = require("aws-sdk");
 
 // Configure AWS with credentials
