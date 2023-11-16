@@ -1,0 +1,23 @@
+Scrum Meeting 02 | 11.14.23 :
+
+    General Notes:
+      - Push to main branch before EOD tomorrow
+      - Make sure to push to main branch before our scrum meetings
+      - Kitchen page and Pantry page need to be functional in order for 
+      - Very little time left to start ironing out the details of this project
+
+    i. Decisions made
+      - Need to have more serious plan
+      - Points will be cut if we do not have more progress on necessary pages
+
+    ii. Alternative actions/options discussed
+      - None
+
+    iii. Follow-up items, including agreed-on roles and responsibilities
+      - Team Responsibilities:
+        1. Tyler: Social Media frame / Assist Suhana on pantry page
+        2. Grayson: Finish Kitchen
+        3. Johnny: Finish Kitchen 
+        4. Alex: Database framework for Social Media page
+        5. Suhana: Make sure to email TA about project progress tomorrow EOD, Continue on pantry page
+        6. Aniket: login, sign-up, registration
