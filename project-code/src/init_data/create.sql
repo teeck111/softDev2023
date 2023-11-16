@@ -21,7 +21,7 @@ CREATE TABLE recipes (
 
 CREATE TABLE ingredients (
     ingredient_id SERIAL PRIMARY KEY,
-    ingredient_text VARCHAR(45) NOT NULL,
+    ingredient_text VARCHAR(45) NOT NULL
 );
 
 CREATE TABLE users_to_ingredients (
