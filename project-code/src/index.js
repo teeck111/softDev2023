@@ -225,8 +225,6 @@ app.post("/pantry/add", async (req, res) => {
   return res.redirect("/pantry"); });
 
 
-});
-
 app.get('/favorites', (req, res) => {
   res.render("pages/favorites.ejs");
 });
