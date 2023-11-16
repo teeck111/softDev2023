@@ -1,6 +1,48 @@
 <%- include ('../partials/header') %>
 <%- include ('../partials/menu') %>
 
+<main>
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-8">
+                <table>
+                    <tr>
+                        <th>Your Ingredients</th>
+                    </tr>
+                    <% var table_rows = '';
+                        ingredients.forEach(function(item){
+                            table_rows += `<tr><td>${item.ingredient_text}</td>
+                                <td><form action="/pantry/delete" method="POST">
+                                    <input type="submit" value="DELETE" />
+                                    <input type="hidden" name="ingredient_id" value="${item.ingredient_id}">
+                                </form></td></tr>`;
+                        });
+                        %>
+                    <%- table_rows %>
+                </table>
+            </div>
+            <div class="col bg-success-subtle border-start border-4 border-dark" style="max-height: 100%">
+                <table>
+                    <tr>
+                        <th>Add Ingredients</th>
+                    </tr>
+                    <tr>
+                        <% var table_rows = '';
+                        unused_ingredients.forEach(function(item){
+                            table_rows += `<tr><td>${item.ingredient_text}</td>
+                                <td><form action="/pantry/add" method="POST">
+                                    <input type="submit" value="ADD" />
+                                    <input type="hidden" name="ingredient_id" value="${item.ingredient_id}">
+                                </form></td></tr>`;
+                        });
+                        %>
+                    <%- table_rows %>
+                    </tr>
+                </table>
+            </div>
+        </div>
+    </div>
+</main>
 
 
 
