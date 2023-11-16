@@ -10,7 +10,8 @@ CREATE TABLE users (
 CREATE TABLE recipes (
     recipe_id SERIAL PRIMARY KEY,
     recipe_text TEXT NOT NULL,
-    creator_id INT,
+    user_id INT,
+    is_starred BOOLEAN,
 
     CONSTRAINT fk_creator
         FOREIGN KEY(creator_id)
@@ -19,7 +20,7 @@ CREATE TABLE recipes (
 
 CREATE TABLE ingredients (
     ingredient_id SERIAL PRIMARY KEY,
-    ingredient_text VARCHAR(45) NOT NULL
+    ingredient_text VARCHAR(45) NOT NULL,
 );
 
 CREATE TABLE users_to_ingredients (
