@@ -5,29 +5,23 @@
     <div class="container-fluid">
         <div class="row">
             <div class="col-8">
-                <div class="mt-3 card p-3 bg-success">
+                <div class="mt-3 card p-3 accent_3">
                     <table class="table-success-subtle">
-                        <thead>
-                        
-                        </thead>
+                        <thead></thead>
                         <tbody>
                             <tr>
                                 <td>
-                                        <div class="container-lg border border-success bg-success-subtle rounded" style="height: 407px">
-                                            <form>
-                                                <div class="form-group mt-3">
-                                                    <textarea class="form-control" id="dynamicTextBox" rows="15" readonly></textarea>
-                                                </div>
-                                            </form>
-                    
+                                    <form>
+                                        <div class="form-group">
+                                            <textarea class="form-control" id="dynamicTextBox" rows="15" readonly></textarea>
                                         </div>
-
+                                    </form>
                                 </td>
 
                             </tr>
                             <tr>
                                 <td>
-                                    <div class="p-3 mt-4 bg-success-subtle rounded" style="height: 75px">
+                                    <div class="p-3 mt-4 accent_3 rounded" style="height: 75px">
                                         <form action="/kitchen" method="GET">
                                             <div class="row mb-3">
                                               <label for="prompt" class="col col-form-label">Prompt:</label>
@@ -35,23 +29,32 @@
                                                 <input type="text" class="form-control border border-success" id="prompt" name="prompt">
                                       
                                               </div>
-                                              <div class="col-sm-2"><button type="submit" class="btn btn-outline-dark">Create</button></div>
-                                              
+                                              <div class="col"><button type="submit" class="btn btn-outline-dark">Create</button></div>
+                                              <div class="col"><button type="submit" class="btn btn-outline-dark">Post</button></div>
                                             </div>
-                                            
-                                          </form>
-                    
+                                          </form>  
                                     </div>
                                 </td>
-    
                             </tr>
-                            
+                            <tr>
+                                <td>
+                                    <div class="btn-group" role="group" aria-label="Basic radio toggle button group">
+                                        <input type="radio" class="btn-check" name="btnradio" id="pantry_true" autocomplete="off" checked>
+                                        <label class="btn btn-outline accent_1" for="pantry_true">Restricted</label>
+                                      
+                                        <input type="radio" class="btn-check" name="btnradio" id="pantry_false" autocomplete="off">
+                                        <label class="btn btn-outline accent_1" for="pantry_false">Un-restricted</label>
+                                      
+                                      </div>
+                                </td>
+                            </tr>
                         </tbody>
                     </table>
                 </div>
             </div>
+
             <div class="col">
-                <div class="mt-3 card p-3 bg-success">
+                <div class="mt-3 card p-3 accent_3">
                     <table class="table-success-subtle">
                         <thead>
                             <tr>
@@ -60,24 +63,21 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <tr>
-                                <td>Recipe One</td>
-    
-                            </tr>
-                            <tr>
-                                <td>Recipe Two</td>
-    
-                            </tr>
-                            <tr>
-                                <td>Recipe Three</td>
-    
-                            </tr>
-                            <tr>
-                                <td>Recipe Four</td>
-    
-                            </tr>
+                            <% if (user && user.recipes && user.recipes.length > 0) { %>
+                                    <% user.recipes.slice(0,10).forEach(function(recipe) { %>
+                                        <tr>
+                                            <td>
+                                                <h2><%= recipe.name %></h2>
+                                                <!-- Add other recipe details as needed -->
+                                            <td>
+                                        </tr>                                       
+                                    <% }); %>
+                            <% } else { %>
+                                <tr><td>No recipes found</td></tr>
+                    
+                            <% } %>
                         </tbody>
-                        </table>
+                    </table>
                 </div>
             </div>
         </div>
