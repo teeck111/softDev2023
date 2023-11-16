@@ -26,10 +26,10 @@ describe('Server!', () => {
   // ===========================================================================
   // TO-DO: Part A Login unit test case
 
-  describe('positive: /login', () => {
+  describe('/login', () => {
 
     // Positive test case
-    it('should log in a user with valid credentials', (done) => {
+    it('positive: /login', (done) => {
       chai.request(server)
         .post('/login')
         .send({ username: 'kkxsiinnmn61', password: 'CSCI_3308' }) 
