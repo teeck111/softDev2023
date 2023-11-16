@@ -57,6 +57,7 @@ app.get("/login", (req, res) => {
     res.render("pages/login.ejs");
 });
 
+
 app.post("/login", async (req, res) => {
   if (req.body.username == undefined || req.body.password == undefined || req.body.username.length == 0 || req.body.password.length == 0){
       res.render("pages/login", {message: "Please enter a username and password.", error: true});
@@ -75,11 +76,13 @@ app.post("/login", async (req, res) => {
   try {
     user = await db.any(user_sql, [username]);
     if (user.length == 0){
+        res.status(400);
         res.render("pages/login", {message: "Incorrect username or password.", error: true});
         return true;
     }
   }
   catch(ex) {
+    res.status(400);
     res.render("pages/login", {message: "An internal error occured.", error: true});
     console.error(ex);
     return true;
@@ -95,11 +98,57 @@ app.post("/login", async (req, res) => {
 
       req.session.user = user[0];
       req.session.save();
-      return res.redirect("/kitchen");
-  } else {
+      return res.status(200).json({ message: "success", redirect: "/kitchen" });
+    } else {
+      res.status(400);
       res.render("pages/login", {message: "Incorrect username or password.", error: true});
   }
 })
+
+// Authentication middleware.
+const auth = (req, res, next) => {
+  if (!req.session.user) {
+    return res.redirect("/login");
+  }
+  next();
+};
+
+app.use(auth);
+
+app.post("/register", async (req, res) => {
+  const hash = await bcrypt.hash(req.body.password, 10);
+  const query = 'INSERT INTO users(email, username, password) VALUES ($1,$2,$3)';
+  console.log(req.body.email)
+  const query2 = `SELECT * FROM users WHERE email = $1;`
+
+  const check_exist = await db.any(query2, [req.body.email])
+  if (check_exist.length > 0){
+    res.render('pages/login')
+    return
+  }
+  /*db.one(query2)
+  .then(function(){
+    //res.redirect('/login');
+    res.render("pages/register");
+  })
+  .catch(error => {*/
+    //console.log('b')
+    //console.log(error)
+    
+    db.any(query, [
+      req.body.email,
+      'default user',
+      hash
+
+
+    ])
+    
+    res.redirect("/login")
+
+  //})
+  
+
+});
 
 app.get("/register", (req, res) => {
     res.render("pages/register.ejs");
@@ -122,12 +171,74 @@ app.get("/api/posts_feed", (req, res) => { //placeholder api for posts
   res.status(200).json({post_feed: [p, p, p, p]});
 })
 
+const all_user_ingredients = 
+  `SELECT DISTINCT *
+  FROM users_to_ingredients u_to_i
+  JOIN ingredients i ON u_to_i.ingredient_id=i.ingredient_id
+  WHERE u_to_i.user_id=$1;`;
+
+const all_unused_ingredients = 
+  `SELECT *
+  FROM ingredients i
+  WHERE NOT EXISTS (
+    SELECT 1
+    FROM users_to_ingredients u_to_i
+    WHERE u_to_i.ingredient_id = i.ingredient_id
+    AND u_to_i.user_id = $1
+  );`;
+
+app.get('/pantry', async (req, res) => {
+  var unused_ingredients = await db.any(all_unused_ingredients, [req.session.user.user_id]);
+  db.any(all_user_ingredients, [req.session.user.user_id])
+    .then((ingredients) => {
+      console.log(ingredients);
+      res.render("pages/pantry.ejs", {
+        ingredients,
+        unused_ingredients,
+      });
+    })
+    .catch((err) => {
+      res.render("pages/pantry.ejs", {
+        ingredients: [],
+        unused_ingredients: [],
+        error: true,
+        message: err.message,
+      });
+    });
+});
+
+app.post("/pantry/delete", async (req, res) => {
+  const delete_query = `DELETE FROM
+                          users_to_ingredients
+                        WHERE
+                          user_id = $1
+                        AND 
+                          ingredient_id = $2;`
+  var updated_ingredients = await db.none(delete_query, [req.session.user.user_id, req.body.ingredient_id]);
+  return res.redirect("/pantry");
+});
+
+app.post("/pantry/add", async (req, res) => {
+  const add_query = `INSERT INTO
+                        users_to_ingredients (user_id, ingredient_id)
+                      VALUES
+                        ($1, $2);`;
+  var updated_ingredients = await db.none(add_query, [req.session.user.user_id, req.body.ingredient_id]);
+  return res.redirect("/pantry");
+});
+
+app.get('/favorites', (req, res) => {
+  res.render("pages/favorites.ejs");
+});
+
+
 // aws bedrock api call
 
 
 // maybe there's a better way to do this,
 // not sure tho as I'm still figuring it out
-const AWS = require("aws-sdk");
+
+/*const AWS = require("aws-sdk");
 
 // Configure AWS with credentials
 // probably need to find a safer way to do this
@@ -168,6 +279,7 @@ app.post("/api/bedrock", async (req, res) => {
     res.status(500).json({ message: 'Error invoking the model' });
   }
 });
+*/
 
 app.listen(3000);
-console.log("Server listening on port 3000");
+console.log("Server listening on port 3000"); 

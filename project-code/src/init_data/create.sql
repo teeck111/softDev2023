@@ -34,3 +34,7 @@ CREATE TABLE users_to_ingredients (
         FOREIGN KEY(ingredient_id)
             REFERENCES ingredients(ingredient_id)
 );
+
+CREATE TABLE total_recipes (
+    recipes INT
+);
