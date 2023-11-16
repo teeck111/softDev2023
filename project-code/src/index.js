@@ -72,6 +72,7 @@ app.post("/login", async (req, res) => {
   }
 
   var user = null;
+
   try {
     user = await db.any(user_sql, [username]);
     if (user.length == 0){
@@ -90,6 +91,11 @@ app.post("/login", async (req, res) => {
   const match = await bcrypt.compare(req.body.password, user[0].password);
 
   if (match){
+
+    req.session.user = {
+      lksdjflsdjf
+    }
+
       req.session.user = user[0];
       req.session.save();
       res.status(200);
@@ -158,6 +164,15 @@ app.get('/welcome', (req, res) => {
   res.json({status: 'success', message: 'Welcome!'});
 });
 
+app.get("/api/posts_feed", (req, res) => { //placeholder api for posts 
+  const p = {
+    title: "Lorum Ipsum",
+    author: "user1234",
+    content: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
+  }
+  res.status(200).json({post_feed: [p, p, p, p]});
+})
+
 const all_user_ingredients = 
   `SELECT DISTINCT *
   FROM users_to_ingredients u_to_i
@@ -211,12 +226,13 @@ app.post("/pantry/add", async (req, res) => {
                       VALUES
                         ($1, $2);`;
   var updated_ingredients = await db.none(add_query, [req.session.user.user_id, req.body.ingredient_id]);
+  
   return res.redirect("/pantry"); });
+
 
 app.get('/favorites', (req, res) => {
   res.render("pages/favorites.ejs");
 });
-
 
 
 // aws bedrock api call
@@ -259,6 +275,7 @@ app.post("/api/bedrock", async (req, res) => {
     };
 
     const result = await bedrock.invokeModel(params).promise();
+
     res.status(200).json(result); // we'll use this  to display result later
   } catch (error) {
     console.error(error);
