@@ -111,22 +111,37 @@ app.use(auth);
 
 app.post("/register", async (req, res) => {
   const hash = await bcrypt.hash(req.body.password, 10);
-  const query = 'INSERT INTO users(username, password) VALUES ($1,$2)';
-  const query2 = `SELECT * FROM users WHERE username = '${req.body.username}';`
+  const query = 'INSERT INTO users(email, username, password) VALUES ($1,$2,$3)';
+  console.log(req.body.email)
+  const query2 = `SELECT * FROM users WHERE email = $1;`
 
-  db.one(query2)
+  const check_exist = await db.any(query2, [req.body.email])
+  if (check_exist.length > 0){
+    res.render('pages/login')
+    return
+  }
+  /*db.one(query2)
   .then(function(){
-    res.redirect('/login');
+    //res.redirect('/login');
+    res.render("pages/register");
   })
-  .catch(error => {
+  .catch(error => {*/
+    //console.log('b')
+    //console.log(error)
+    
     db.any(query, [
-      req.body.username,
+      req.body.email,
+      'default user',
       hash
+
+
     ])
+    
     res.redirect("/login")
-  })
+
+  //})
   
-  res.render("pages/register");
+
 });
 
 app.get("/register", (req, res) => {
@@ -199,6 +214,8 @@ app.post("/pantry/add", async (req, res) => {
 app.get('/favorites', (req, res) => {
   res.render("pages/favorites.ejs");
 });
+
+
 
 // aws bedrock api call
 
