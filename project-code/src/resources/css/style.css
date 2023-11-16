@@ -16,7 +16,7 @@ h1{
 
 body {
     
-    background-color: #0A703C;
+    background-color: rgb(214, 234, 159);
 }
 
 .info {
@@ -52,6 +52,21 @@ a {
     text-decoration: inherit;
 }
 
+.accent_1 {
+    background-color: rgb(255, 173, 51);
+
+}
+
+.accent_2 {
+    background-color: rgb(255, 147, 31);
+
+}
+
+.accent_3 {
+    background-color: rgb(255, 126, 51);
+
+
+}
 
 .hover{
     color: #FFFDF7;

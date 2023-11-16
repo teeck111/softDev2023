@@ -196,6 +196,8 @@ app.post("/pantry/add", async (req, res) => {
   var updated_ingredients = await db.none(add_query, [req.session.user.user_id, req.body.ingredient_id]);
   return res.redirect("/pantry");
 
+});
+
 app.get('/favorites', (req, res) => {
   res.render("pages/favorites.ejs");
 });
