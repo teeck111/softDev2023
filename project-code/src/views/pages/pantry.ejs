@@ -5,36 +5,43 @@
     <div class="container-fluid">
         <div class="row">
             <div class="col-8">
-                <% var table_rows = '';
-                ingredients.forEach(function(item){
-                    table_rows += `<tr><td>${item.ingredient_text}</td>
-                        <td><form action="/ingredients/delete" method="POST">
-                            <input type="submit" value="DELETE" />
-                            <input type="hidden" name="course_id" value="${item.course_id}">
-                        </form></td></tr>`;
-                    }
-                    %>
-                <% }); %>
-                <%- table_rows %>
+                <table>
+                    <tr>
+                        <th>Your Ingredients</th>
+                    </tr>
+                    <% var table_rows = '';
+                        ingredients.forEach(function(item){
+                            table_rows += `<tr><td>${item.ingredient_text}</td>
+                                <td><form action="/pantry/delete" method="POST">
+                                    <input type="submit" value="DELETE" />
+                                    <input type="hidden" name="ingredient_id" value="${item.ingredient_id}">
+                                </form></td></tr>`;
+                        });
+                        %>
+                    <%- table_rows %>
+                </table>
             </div>
             <div class="col bg-success-subtle border-start border-4 border-dark" style="max-height: 100%">
-                <div class="mt-3 card p-3 bg-success">
-                    <table class="table-success-subtle">
-                        <thead>
-                            <tr>
-                            <th scope="col"><h3>Add Ingredients</h3></th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td>put Add Ingredient form here</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
+                <table>
+                    <tr>
+                        <th>Add Ingredients</th>
+                    </tr>
+                    <tr>
+                        <% var table_rows = '';
+                        unused_ingredients.forEach(function(item){
+                            table_rows += `<tr><td>${item.ingredient_text}</td>
+                                <td><form action="/pantry/add" method="POST">
+                                    <input type="submit" value="ADD" />
+                                    <input type="hidden" name="ingredient_id" value="${item.ingredient_id}">
+                                </form></td></tr>`;
+                        });
+                        %>
+                    <%- table_rows %>
+                    </tr>
+                </table>
             </div>
         </div>
     </div>
-  </main>
+</main>
 
 <%- include ('../partials/footer') %>

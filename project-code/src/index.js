@@ -95,6 +95,16 @@ app.post("/login", async (req, res) => {
   }
 })
 
+// Authentication middleware.
+const auth = (req, res, next) => {
+  if (!req.session.user) {
+    return res.redirect("/login");
+  }
+  next();
+};
+
+app.use(auth);
+
 app.get("/register", (req, res) => {
     res.render("pages/register.ejs");
 })
@@ -107,24 +117,60 @@ app.get('/welcome', (req, res) => {
   res.json({status: 'success', message: 'Welcome!'});
 });
 
-app.get('/pantry', (req, res) => {
-  const all_user_ingredients = `SELECT DISTINCT i.ingredients_text
-                                FROM users_to_ingredients u_to_i
-                                JOIN ingredients i ON u_to_i.ingredient_id=i.ingredient_id
-                                WHERE u_to_i.user_id=$1;`;
+const all_user_ingredients = 
+  `SELECT DISTINCT *
+  FROM users_to_ingredients u_to_i
+  JOIN ingredients i ON u_to_i.ingredient_id=i.ingredient_id
+  WHERE u_to_i.user_id=$1;`;
+
+const all_unused_ingredients = 
+  `SELECT *
+  FROM ingredients i
+  WHERE NOT EXISTS (
+    SELECT 1
+    FROM users_to_ingredients u_to_i
+    WHERE u_to_i.ingredient_id = i.ingredient_id
+    AND u_to_i.user_id = $1
+  );`;
+
+app.get('/pantry', async (req, res) => {
+  var unused_ingredients = await db.any(all_unused_ingredients, [req.session.user.user_id]);
   db.any(all_user_ingredients, [req.session.user.user_id])
     .then((ingredients) => {
+      console.log(ingredients);
       res.render("pages/pantry.ejs", {
         ingredients,
+        unused_ingredients,
       });
     })
     .catch((err) => {
       res.render("pages/pantry.ejs", {
         ingredients: [],
+        unused_ingredients: [],
         error: true,
         message: err.message,
       });
     });
+});
+
+app.post("/pantry/delete", async (req, res) => {
+  const delete_query = `DELETE FROM
+                          users_to_ingredients
+                        WHERE
+                          user_id = $1
+                        AND 
+                          ingredient_id = $2;`
+  var updated_ingredients = await db.none(delete_query, [req.session.user.user_id, req.body.ingredient_id]);
+  return res.redirect("/pantry");
+});
+
+app.post("/pantry/add", async (req, res) => {
+  const add_query = `INSERT INTO
+                        users_to_ingredients (user_id, ingredient_id)
+                      VALUES
+                        ($1, $2);`;
+  var updated_ingredients = await db.none(add_query, [req.session.user.user_id, req.body.ingredient_id]);
+  return res.redirect("/pantry");
 });
 
 // aws bedrock api call
