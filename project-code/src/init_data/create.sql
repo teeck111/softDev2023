@@ -10,11 +10,12 @@ CREATE TABLE users (
 CREATE TABLE recipes (
     recipe_id SERIAL PRIMARY KEY,
     recipe_text TEXT NOT NULL,
+    recipe_name VARCHAR(255),
     user_id INT,
     is_starred BOOLEAN,
 
     CONSTRAINT fk_creator
-        FOREIGN KEY(creator_id)
+        FOREIGN KEY(user_id)
             REFERENCES users(user_id)
 );
 
