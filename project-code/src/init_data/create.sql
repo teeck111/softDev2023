@@ -14,7 +14,7 @@ CREATE TABLE recipes (
     is_starred BOOLEAN,
 
     CONSTRAINT fk_creator
-        FOREIGN KEY(creator_id)
+        FOREIGN KEY(user_id)
             REFERENCES users(user_id)
 );
 
