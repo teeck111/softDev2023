@@ -226,7 +226,6 @@ app.post("/pantry/add", async (req, res) => {
 
 
 
-
 app.get('/favorites', (req, res) => {
   res.render("pages/favorites.ejs");
 });
