@@ -74,11 +74,13 @@ app.post("/login", async (req, res) => {
   try {
     user = await db.any(user_sql, [username]);
     if (user.length == 0){
+        res.status(400);
         res.render("pages/login", {message: "Incorrect username or password.", error: true});
         return true;
     }
   }
   catch(ex) {
+    res.status(400);
     res.render("pages/login", {message: "An internal error occured.", error: true});
     console.error(ex);
     return true;
@@ -89,8 +91,9 @@ app.post("/login", async (req, res) => {
   if (match){
       req.session.user = user[0];
       req.session.save();
-      return res.redirect("/kitchen");
-  } else {
+      return res.status(200).json({ message: "success", redirect: "/kitchen" });
+    } else {
+      res.status(400);
       res.render("pages/login", {message: "Incorrect username or password.", error: true});
   }
 })
@@ -152,6 +155,7 @@ app.post("/api/bedrock", async (req, res) => {
     res.status(500).json({ message: 'Error invoking the model' });
   }
 });
+*/
 
 app.listen(3000);
 console.log("Server listening on port 3000");
