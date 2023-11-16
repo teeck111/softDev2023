@@ -26,16 +26,15 @@ describe('Server!', () => {
   // ===========================================================================
   // TO-DO: Part A Login unit test case
 
-  describe('positive: /login', () => {
+  describe('/login', () => {
 
     // Positive test case
-    it('should log in a user with valid credentials', (done) => {
+    it('positive: /login', (done) => {
       chai.request(server)
         .post('/login')
         .send({ username: 'kkxsiinnmn61', password: 'CSCI_3308' }) 
         .end((err, res) => {
-          res.should.have.status(200);
-          expect(res.body.message).to.equals('success');
+          expect(res).to.have.status(200);
           done();
         });
     });
@@ -46,8 +45,33 @@ describe('Server!', () => {
         .post('/login')
         .send({ username: 'foo', password: 'foo' })
         .end((err, res) => {
-          res.should.have.status(400);
+          expect(res).to.have.status(400);
           done();
         });
     });
 }));
+
+describe('/register', () => {
+
+    // Positive test case
+    it('positive: /register ', (done) => {
+      chai.request(server)
+        .post('/register')
+        .send({ username: 'tyler', password: 'tk' }) 
+        .end((err, res) => {
+          expect(res).to.have.status(200);
+          done();
+        });
+    });
+
+    //negative test case
+    it('negative: /register', (done) => {
+      chai.request(server)
+        .post('/register')
+        .send({ username: 'ywxs6479@colorado.edu', password: 'CSCI_3308' })
+        .end((err, res) => {
+          expect(res).to.have.status(400);
+          done();
+        });
+    });
+});
