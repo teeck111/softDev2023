@@ -57,6 +57,7 @@ app.get("/login", (req, res) => {
     res.render("pages/login.ejs");
 });
 
+
 app.post("/login", async (req, res) => {
   if (req.body.username == undefined || req.body.password == undefined || req.body.username.length == 0 || req.body.password.length == 0){
       res.render("pages/login", {message: "Please enter a username and password.", error: true});
@@ -98,6 +99,26 @@ app.post("/login", async (req, res) => {
   }
 })
 
+app.post("/register", async (req, res) => {
+  const hash = await bcrypt.hash(req.body.password, 10);
+  const query = 'INSERT INTO users(username, password) VALUES ($1,$2)';
+  const query2 = `SELECT * FROM users WHERE username = '${req.body.username}';`
+
+  db.one(query2)
+  .then(function(){
+    res.redirect('/login');
+  })
+  .catch(error => {
+    db.any(query, [
+      req.body.username,
+      hash
+    ])
+    res.redirect("/login")
+  })
+  
+  res.render("pages/register");
+});
+
 app.get("/register", (req, res) => {
     res.render("pages/register.ejs");
 })
@@ -110,11 +131,16 @@ app.get('/welcome', (req, res) => {
   res.json({status: 'success', message: 'Welcome!'});
 });
 
+app.get('/favorites', (req, res) => {
+  res.render("pages/favorites.ejs");
+});
+
 // aws bedrock api call
 
 
 // maybe there's a better way to do this,
 // not sure tho as I'm still figuring it out
+
 /*const AWS = require("aws-sdk");
 
 // Configure AWS with credentials
