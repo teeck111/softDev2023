@@ -128,11 +128,14 @@ app.get('/welcome', (req, res) => {
   res.json({status: 'success', message: 'Welcome!'});
 });
 
+
+
 // aws bedrock api call
 
 
 // maybe there's a better way to do this,
 // not sure tho as I'm still figuring it out
+
 /*const AWS = require("aws-sdk");
 
 // Configure AWS with credentials
