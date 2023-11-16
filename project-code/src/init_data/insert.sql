@@ -102,7 +102,9 @@ INSERT INTO users (email, username, password) VALUES
 
 INSERT INTO ingredients (ingredient_text) VALUES 
 ('Chicken'),
+('Cheese'),
 ('Rice'),
 ('Beans'),
 ('Tomato'),
+('Banana'),
 ('Onion');

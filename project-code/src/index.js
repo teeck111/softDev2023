@@ -92,7 +92,8 @@ app.post("/login", async (req, res) => {
   if (match){
       req.session.user = user[0];
       req.session.save();
-      return res.status(200).json({ message: "success", redirect: "/kitchen" });
+      res.status(200);
+      res.redirect('/kitchen');
     } else {
       res.status(400);
       res.render("pages/login", {message: "Incorrect username or password.", error: true});
@@ -133,6 +134,11 @@ app.get("/register", (req, res) => {
     res.render("pages/register.ejs");
 })
 
+app.get("/logout", (req, res) => {
+  req.session.destroy();
+  res.redirect("/");
+});
+
 app.get('/kitchen', (req, res) => {
   res.render("pages/kitchen.ejs");
 });
@@ -145,7 +151,8 @@ const all_user_ingredients =
   `SELECT DISTINCT *
   FROM users_to_ingredients u_to_i
   JOIN ingredients i ON u_to_i.ingredient_id=i.ingredient_id
-  WHERE u_to_i.user_id=$1;`;
+  WHERE u_to_i.user_id=$1
+  ORDER BY i.ingredient_text ASC;`;
 
 const all_unused_ingredients = 
   `SELECT *
@@ -155,13 +162,13 @@ const all_unused_ingredients =
     FROM users_to_ingredients u_to_i
     WHERE u_to_i.ingredient_id = i.ingredient_id
     AND u_to_i.user_id = $1
-  );`;
+  )
+  ORDER BY i.ingredient_text ASC;`;
 
 app.get('/pantry', async (req, res) => {
   var unused_ingredients = await db.any(all_unused_ingredients, [req.session.user.user_id]);
   db.any(all_user_ingredients, [req.session.user.user_id])
     .then((ingredients) => {
-      console.log(ingredients);
       res.render("pages/pantry.ejs", {
         ingredients,
         unused_ingredients,
@@ -195,6 +202,40 @@ app.post("/pantry/add", async (req, res) => {
                         ($1, $2);`;
   var updated_ingredients = await db.none(add_query, [req.session.user.user_id, req.body.ingredient_id]);
   return res.redirect("/pantry");
+});
+
+app.post('/pantry/search', async (req, res) => {
+  console.log(req.body.search_val);
+  var search_ingredients = 
+  `SELECT *
+  FROM ingredients i
+  WHERE NOT EXISTS (
+    SELECT 1
+    FROM users_to_ingredients u_to_i
+    WHERE u_to_i.ingredient_id = i.ingredient_id
+    AND u_to_i.user_id = $1
+  )
+  AND i.ingredient_text LIKE '${req.body.search_val}%'
+  ORDER BY i.ingredient_text ASC;`;
+  var unused_ingredients = await db.any(search_ingredients, [req.session.user.user_id]);
+  console.log(unused_ingredients);
+  db.any(all_user_ingredients, [req.session.user.user_id])
+    .then((ingredients) => {
+      res.render("pages/pantry.ejs", {
+        ingredients,
+        unused_ingredients,
+      });
+    })
+    .catch((err) => {
+      console.log(err);
+      res.render("pages/pantry.ejs", {
+        ingredients: [],
+        unused_ingredients: [],
+        error: true,
+        message: err.message,
+      });
+    });
+});
 
 app.get('/favorites', (req, res) => {
   res.render("pages/favorites.ejs");

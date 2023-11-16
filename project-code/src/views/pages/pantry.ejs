@@ -4,7 +4,7 @@
 <main>
     <div class="container-fluid">
         <div class="row">
-            <div class="col-8">
+            <div class="col-6">
                 <table>
                     <tr>
                         <th>Your Ingredients</th>
@@ -25,6 +25,20 @@
                 <table>
                     <tr>
                         <th>Add Ingredients</th>
+                    </tr>
+                    <tr>
+                        <td>
+                        <form action="/pantry/search" method="POST">
+                            <div class="form-group">
+                                <label for="search_val">Find an Ingredient</label>
+                                <input type="search_val" class="form-control" name="search_val">
+                            </div>
+                            <button type="submit" class="btn btn-primary">Search</button>
+                        </form>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Available Ingredients</td>
                     </tr>
                     <tr>
                         <% var table_rows = '';
