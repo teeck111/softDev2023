@@ -51,3 +51,29 @@ describe('Server!', () => {
         });
     });
 }));
+
+describe('/register', () => {
+
+    // Positive test case
+    it('positive: /register ', (done) => {
+      chai.request(server)
+        .post('/register')
+        .send({ username: 'tyler', password: 'tk' }) 
+        .end((err, res) => {
+          res.should.have.status(200);
+          expect(res.body.message).to.equals('success');
+          done();
+        });
+    });
+
+    //negative test case
+    it('negative: /register', (done) => {
+      chai.request(server)
+        .post('/register')
+        .send({ username: 'ywxs6479@colorado.edu', password: 'CSCI_3308' })
+        .end((err, res) => {
+          res.should.have.status(400);
+          done();
+        });
+    });
+});
