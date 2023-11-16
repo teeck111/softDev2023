@@ -91,11 +91,6 @@ app.post("/login", async (req, res) => {
   const match = await bcrypt.compare(req.body.password, user[0].password);
 
   if (match){
-
-    req.session.user = {
-      lksdjflsdjf
-    }
-
       req.session.user = user[0];
       req.session.save();
       return res.status(200).json({ message: "success", redirect: "/kitchen" });
