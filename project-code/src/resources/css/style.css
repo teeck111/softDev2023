@@ -60,3 +60,10 @@ a {
 .hover:hover{
     font-size: 110%;
 }
+
+.fav {
+    margin-top: 60px;
+    margin-left: 15%;
+    margin-right: 15%;
+    
+}

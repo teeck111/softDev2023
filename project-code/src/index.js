@@ -98,7 +98,9 @@ app.post("/login", async (req, res) => {
 
       req.session.user = user[0];
       req.session.save();
-      return res.status(200).json({ message: "success", redirect: "/kitchen" });
+      res.status(200);
+      res.redirect('/kitchen');
+
     } else {
       res.status(400);
       res.render("pages/login", {message: "Incorrect username or password.", error: true});
@@ -224,8 +226,9 @@ app.post("/pantry/add", async (req, res) => {
                       VALUES
                         ($1, $2);`;
   var updated_ingredients = await db.none(add_query, [req.session.user.user_id, req.body.ingredient_id]);
-  return res.redirect("/pantry");
-});
+  
+  return res.redirect("/pantry"); });
+
 
 app.get('/favorites', (req, res) => {
   res.render("pages/favorites.ejs");
