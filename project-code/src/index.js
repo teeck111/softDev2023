@@ -151,14 +151,6 @@ app.post("/api/bedrock", async (req, res) => {
 });
 
 // Authentication middleware.
-const auth = (req, res, next) => {
-  if (!req.session.user) {
-    return res.redirect("/login");
-  }
-  next();
-};
-
-app.use(auth);
 
 app.post("/register", async (req, res) => {
   const hash = await bcrypt.hash(req.body.password, 10);
@@ -197,7 +189,17 @@ app.post("/register", async (req, res) => {
 
 app.get("/register", (req, res) => {
     res.render("pages/register.ejs");
-})
+});
+
+const auth = (req, res, next) => {
+  if (!req.session.user) {
+    return res.redirect("/login");
+  }
+  next();
+};
+
+app.use(auth);
+
 
 app.get('/kitchen', (req, res) => {
   res.render("pages/kitchen.ejs");
