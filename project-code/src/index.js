@@ -280,5 +280,14 @@ app.get('/favorites', (req, res) => {
   res.render("pages/favorites.ejs");
 });
 
+app.get('/settings', (req, res) => {
+  res.render("pages/settings.ejs");
+});
+
+app.get("/logout", (req, res) => {
+  req.session.destroy();
+  res.render("pages/home.ejs");
+});
+
 app.listen(3000);
 console.log("Server listening on port 3000"); 
