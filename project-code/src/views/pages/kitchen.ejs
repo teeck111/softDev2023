@@ -22,7 +22,7 @@
                             <tr>
                                 <td>
                                     
-                                        <form action="/kitchen" method="GET">
+                                        <form id="KitchenForm">
                                             <label for="prompt" class="col col-form-label">Tell us what you're in the mood for:</label>
                                             <div class="row mb-3">
                                               
@@ -30,8 +30,12 @@
                                                 <input type="text" class="form-control border border-success" id="prompt" name="prompt">
                                       
                                               </div>
-                                              <div class="col"><button type="submit" class="btn btn-outline-success">Create</button></div>
-                                              <div class="col"><button type="submit" class="btn btn-outline-success">Post</button></div>
+                                              <div class="col">
+                                                <button type="submit" class="btn btn-outline-success" formaction="/kitchen/create">Create</button>
+                                            </div>
+                                            <div class="col">
+                                                <button type="submit" class="btn btn-outline-success" formaction="/kitchen/post">Post</button>
+                                            </div>
                                             </div>
                                           </form>  
                                     
@@ -59,7 +63,7 @@
                     <table class="table-success-subtle">
                         <thead>
                             <tr>
-                            
+                                
                             </tr>
                         </thead>
                         <tbody>
