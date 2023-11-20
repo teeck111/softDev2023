@@ -107,3 +107,8 @@ INSERT INTO ingredients (ingredient_text) VALUES
 ('Tomato'),
 ('Onion');
 
+INSERT INTO recipes (recipe_text, recipe_name, user_id, is_starred) VALUES
+('This is the test recipe which will be used in order to further develop the website'),
+('Test Recipe'),
+(3),
+(0);

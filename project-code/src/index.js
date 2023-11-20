@@ -206,18 +206,25 @@ app.use(auth);
 //app.get('/kitchen', (req, res) => {
 //  res.render("pages/kitchen.ejs");
 //});
+
+//app.get("/kitchen", (req, res) => {
+  //res.render("pages/kitchen", { user_id: req.session.user.user_id });
+  
+//});
+
 app.get("/kitchen", (req, res) => {
   const user_recipes = 'SELECT * FROM recipes WHERE user_id = $1'
-  const user_id = req.session.user.user_id;
-  // Query to list all the recipes created by a user
+  console.log('User ID:', req.session.user.user_id);
 
-  db.any(user_recipes, [req.session.user.user_id]) 
-    .then((recipes) => {
-      console.log(user_id);
-      res.render('pages/kitchen', { recipes, user_id, session: req.session.user });
+  // Query to list all the recipes created by a user
+  db.any(user_recipes, [req.session.user.user_id])
+    .then((recipes) => 
+      // Render the 'kitchen' page with the 'recipes' array and 'user_id'
+      res.render('pages/kitchen', { recipes, user_id: req.session.user.user_id });
+
     })
     .catch((err) => {
-      res.render("pages/kitchen.ejs", {
+      res.render("pages/kitchen", {
         recipes: [],
         error: true,
         message: err.message,
@@ -225,6 +232,27 @@ app.get("/kitchen", (req, res) => {
       });
     });
 
+});
+
+app.post('/kitchen/create', async (req, res) => {
+  try {
+      const recipe_name = "test_recipe";
+      const user_id = req.session.user.user_id;
+      const is_starred = true;
+      const { recipe_text } = req.body;
+
+      // Insert the new recipe into the recipes table
+      const newRecipe = await db.one('INSERT INTO recipes (recipe_text, recipe_name, user_id, is_starred) VALUES ($1, $2, $3, $4) RETURNING *', [recipe_text, recipe_name, user_id, is_starred]);
+      console.log(recipe_name);
+      return res.redirect("/kitchen");
+  } catch (error) {
+      console.error('Error creating recipe:', error);
+      res.status(500).json({
+          success: false,
+          message: 'Error creating recipe',
+          error: error.message,
+      });
+  }
 });
 
 
