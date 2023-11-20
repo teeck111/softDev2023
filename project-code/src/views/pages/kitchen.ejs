@@ -5,7 +5,7 @@
     <div class="container-fluid">
         <div class="row">
             <div class="col-8">
-                <div class="mt-3 card p-3 accent_3">
+                <div class="mt-3 card p-3 bg-success-subtle">
                     <table class="table-success-subtle">
                         <thead></thead>
                         <tbody>
@@ -21,29 +21,30 @@
                             </tr>
                             <tr>
                                 <td>
-                                    <div class="p-3 mt-4 accent_3 rounded" style="height: 75px">
+                                    
                                         <form action="/kitchen" method="GET">
+                                            <label for="prompt" class="col col-form-label">Tell us what you're in the mood for:</label>
                                             <div class="row mb-3">
-                                              <label for="prompt" class="col col-form-label">Prompt:</label>
-                                              <div class="col-8">
+                                              
+                                              <div class="col-9">
                                                 <input type="text" class="form-control border border-success" id="prompt" name="prompt">
                                       
                                               </div>
-                                              <div class="col"><button type="submit" class="btn btn-outline-dark">Create</button></div>
-                                              <div class="col"><button type="submit" class="btn btn-outline-dark">Post</button></div>
+                                              <div class="col"><button type="submit" class="btn btn-outline-success">Create</button></div>
+                                              <div class="col"><button type="submit" class="btn btn-outline-success">Post</button></div>
                                             </div>
                                           </form>  
-                                    </div>
+                                    
                                 </td>
                             </tr>
                             <tr>
                                 <td>
                                     <div class="btn-group" role="group" aria-label="Basic radio toggle button group">
                                         <input type="radio" class="btn-check" name="btnradio" id="pantry_true" autocomplete="off" checked>
-                                        <label class="btn btn-outline accent_1" for="pantry_true">Restricted</label>
+                                        <label class="btn btn-outline-success" for="pantry_true">Restricted</label>
                                       
                                         <input type="radio" class="btn-check" name="btnradio" id="pantry_false" autocomplete="off">
-                                        <label class="btn btn-outline accent_1" for="pantry_false">Un-restricted</label>
+                                        <label class="btn btn-outline-success" for="pantry_false">Un-restricted</label>
                                       
                                       </div>
                                 </td>
@@ -54,7 +55,7 @@
             </div>
 
             <div class="col">
-                <div class="mt-3 card p-3 accent_3">
+                <div class="mt-3 card p-3 bg-success-subtle">
                     <table class="table-success-subtle">
                         <thead>
                             <tr>
