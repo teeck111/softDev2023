@@ -106,3 +106,4 @@ INSERT INTO ingredients (ingredient_text) VALUES
 ('Beans'),
 ('Tomato'),
 ('Onion');
+
