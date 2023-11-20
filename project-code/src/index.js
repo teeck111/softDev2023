@@ -306,7 +306,41 @@ app.get('/favorites', (req, res) => {
 });
 
 app.get('/settings', (req, res) => {
-  res.render("pages/settings.ejs",{session: req.session.user});
+  console.log(req.session.user);
+  const user_id = req.session.user.user_id;
+  const query1 = 'SELECT username FROM users WHERE user_id = $1'
+  db.one(query1, user_id) 
+    .then((username) => {
+      console.log(username);
+      res.render('pages/settings.ejs', {username: username, session: req.session.user });
+    })
+    .catch((err) => {
+      res.render("pages/settings.ejs", {
+        error: true,
+        message: err.message,
+        session: req.session.user
+      });
+    });
+  
+});
+
+
+app.post('/settings', async (req, res) =>{
+  const alter_query = `ALTER TABLE users ALTER USER $1 WITH USERNAME $2`
+  var updated_username = await db.one(alter_query, [req.session.user.user_id, req.body.username])
+  .then(function (data) {
+      res.status(201).json({
+        status: 'success',
+        data: data,
+        message: 'data added successfully',
+      });
+    })
+    // if query execution fails
+    // send error message
+    .catch(function (err) {
+      return console.log(err);
+    });;
+  return redirect('/settings'); 
 });
 
 app.get("/logout", (req, res) => {
