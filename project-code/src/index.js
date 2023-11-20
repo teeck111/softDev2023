@@ -50,17 +50,19 @@ app.use(
 );
 
 app.get("/", (req, res) => {
-    res.render("pages/home.ejs");
+  console.log(req.session.user);
+  console.log(req.session); 
+    res.render("pages/home.ejs",{session: req.session.user});
 });
 
 app.get("/login", (req, res) => {
-    res.render("pages/login.ejs");
+    res.render("pages/login.ejs",{session: req.session.user});
 });
 
 
 app.post("/login", async (req, res) => {
   if (req.body.username == undefined || req.body.password == undefined || req.body.username.length == 0 || req.body.password.length == 0){
-      res.render("pages/login", {message: "Please enter a username and password.", error: true});
+      res.render("pages/login", {session: req.session.user, message: "Please enter a username and password.", error: true});
       return true;
   }
 
@@ -77,13 +79,13 @@ app.post("/login", async (req, res) => {
     user = await db.any(user_sql, [username]);
     if (user.length == 0){
         res.status(400);
-        res.render("pages/login", {message: "Incorrect username or password.", error: true});
+        res.render("pages/login", {session: req.session.user, message: "Incorrect username or password.", error: true});
         return true;
     }
   }
   catch(ex) {
     res.status(400);
-    res.render("pages/login", {message: "An internal error occured.", error: true});
+    res.render("pages/login", {session: req.session.user, message: "An internal error occured.", error: true});
     console.error(ex);
     return true;
   }
@@ -98,7 +100,7 @@ app.post("/login", async (req, res) => {
 
     } else {
       res.status(400);
-      res.render("pages/login", {message: "Incorrect username or password.", error: true});
+      res.render("pages/login", {session: req.session.user, message: "Incorrect username or password.", error: true});
   }
 });
 
@@ -160,7 +162,7 @@ app.post("/register", async (req, res) => {
 
   const check_exist = await db.any(query2, [req.body.email])
   if (check_exist.length > 0){
-    res.render('pages/login')
+    res.render('pages/login', {session: req.session.user})
     return
   }
   /*db.one(query2)
@@ -188,7 +190,7 @@ app.post("/register", async (req, res) => {
 });
 
 app.get("/register", (req, res) => {
-    res.render("pages/register.ejs");
+    res.render("pages/register.ejs",{session: req.session.user});
 });
 
 const auth = (req, res, next) => {
@@ -216,17 +218,20 @@ app.get("/kitchen", (req, res) => {
 
   // Query to list all the recipes created by a user
   db.any(user_recipes, [req.session.user.user_id])
-    .then((recipes) => {
+    .then((recipes) => 
       // Render the 'kitchen' page with the 'recipes' array and 'user_id'
       res.render('pages/kitchen', { recipes, user_id: req.session.user.user_id });
+
     })
     .catch((err) => {
       res.render("pages/kitchen", {
         recipes: [],
         error: true,
         message: err.message,
+        session: req.session.user
       });
     });
+
 });
 
 app.post('/kitchen/create', async (req, res) => {
@@ -288,6 +293,7 @@ app.get('/pantry', async (req, res) => {
       res.render("pages/pantry.ejs", {
         ingredients,
         unused_ingredients,
+        session: req.session.user
       });
     })
     .catch((err) => {
@@ -296,6 +302,7 @@ app.get('/pantry', async (req, res) => {
         unused_ingredients: [],
         error: true,
         message: err.message,
+        session: req.session.user
       });
     });
 });
@@ -323,16 +330,50 @@ app.post("/pantry/add", async (req, res) => {
 
 
 app.get('/favorites', (req, res) => {
-  res.render("pages/favorites.ejs");
+  res.render("pages/favorites.ejs",{session: req.session.user});
 });
 
 app.get('/settings', (req, res) => {
-  res.render("pages/settings.ejs");
+  console.log(req.session.user);
+  const user_id = req.session.user.user_id;
+  const query1 = 'SELECT username FROM users WHERE user_id = $1'
+  db.one(query1, user_id) 
+    .then((username) => {
+      console.log(username);
+      res.render('pages/settings.ejs', {username: username, session: req.session.user });
+    })
+    .catch((err) => {
+      res.render("pages/settings.ejs", {
+        error: true,
+        message: err.message,
+        session: req.session.user
+      });
+    });
+  
+});
+
+
+app.post('/settings', async (req, res) =>{
+  const alter_query = `ALTER TABLE users ALTER USER $1 WITH USERNAME $2`
+  var updated_username = await db.one(alter_query, [req.session.user.user_id, req.body.username])
+  .then(function (data) {
+      res.status(201).json({
+        status: 'success',
+        data: data,
+        message: 'data added successfully',
+      });
+    })
+    // if query execution fails
+    // send error message
+    .catch(function (err) {
+      return console.log(err);
+    });;
+  return redirect('/settings'); 
 });
 
 app.get("/logout", (req, res) => {
   req.session.destroy();
-  res.render("pages/home.ejs");
+  res.redirect("/")
 });
 
 app.listen(3000);
