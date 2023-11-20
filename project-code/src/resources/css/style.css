@@ -1,6 +1,6 @@
 .title {
     font-weight: bold;
-    margin-top: 40px;
+    margin-top: 20px;
     margin-bottom: 45px;
     
 }
@@ -87,4 +87,8 @@ a {
    
     margin-right: 15%;
     margin-left: 15%;
+}
+
+.rec{
+    margin-top: 20px;
 }
