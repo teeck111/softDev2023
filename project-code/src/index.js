@@ -66,10 +66,10 @@ app.post("/login", async (req, res) => {
       return true;
   }
 
-  var user_sql = "SELECT user_id, email, username, d_restric FROM users WHERE username = $1";
+  var user_sql = "SELECT user_id, email, username, d_restric, password FROM users WHERE username = $1";
   var username = req.body.username;
   if (/^.+@.+\..+$/.test(req.body.username)) { //log in with email
-    user_sql = "SELECT user_id, email, username, d_restric FROM users WHERE email = $1";
+    user_sql = "SELECT user_id, email, username, d_restric, password FROM users WHERE email = $1";
     username = username.toLowerCase();
   }
 
@@ -93,7 +93,12 @@ app.post("/login", async (req, res) => {
   const match = await bcrypt.compare(req.body.password, user[0].password);
 
   if (match){
-      req.session.user = user[0];
+      req.session.user = { //the session object - use this to get user_id, username, etc.
+        user_id: user[0].user_id,
+        username: user[0].username,
+        email: user[0].email,
+        d_restric: user[0].d_restric
+      };
       req.session.save();
       res.status(200);
       res.redirect('/kitchen');
