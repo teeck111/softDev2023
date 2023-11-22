@@ -66,10 +66,10 @@ app.post("/login", async (req, res) => {
       return true;
   }
 
-  var user_sql = "SELECT user_id, email, username FROM users WHERE username = $1";
+  var user_sql = "SELECT user_id, email, username, d_restric FROM users WHERE username = $1";
   var username = req.body.username;
   if (/^.+@.+\..+$/.test(req.body.username)) { //log in with email
-    user_sql = "SELECT user_id, email, username FROM users WHERE email = $1";
+    user_sql = "SELECT user_id, email, username, d_restric FROM users WHERE email = $1";
     username = username.toLowerCase();
   }
 
