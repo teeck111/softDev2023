@@ -66,10 +66,10 @@ app.post("/login", async (req, res) => {
       return true;
   }
 
-  var user_sql = "SELECT * FROM users WHERE username = $1";
+  var user_sql = "SELECT user_id, email, username, d_restric FROM users WHERE username = $1";
   var username = req.body.username;
   if (/^.+@.+\..+$/.test(req.body.username)) { //log in with email
-    user_sql = "SELECT * FROM users WHERE email = $1";
+    user_sql = "SELECT user_id, email, username, d_restric FROM users WHERE email = $1";
     username = username.toLowerCase();
   }
 
@@ -218,9 +218,9 @@ app.get("/kitchen", (req, res) => {
 
   // Query to list all the recipes created by a user
   db.any(user_recipes, [req.session.user.user_id])
-    .then((recipes) => 
+    .then((recipes) => {
       // Render the 'kitchen' page with the 'recipes' array and 'user_id'
-      res.render('pages/kitchen', { recipes, user_id: req.session.user.user_id });
+      res.render('pages/kitchen', { recipes, session: req.session.user, user_id: req.session.user.user_id });
 
     })
     .catch((err) => {
@@ -231,7 +231,6 @@ app.get("/kitchen", (req, res) => {
         session: req.session.user
       });
     });
-
 });
 
 app.post('/kitchen/create', async (req, res) => {
