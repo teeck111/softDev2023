@@ -358,8 +358,16 @@ app.get('/settings', (req, res) => {
 
 
 app.post('/settings', async (req, res) =>{
-  const alter_query = `ALTER TABLE users ALTER USER $1 WITH USERNAME $2`
-  var updated_username = await db.one(alter_query, [req.session.user.user_id, req.body.username])
+  const alter_query = `UPDATE users SET username = $1 WHERE user_id = $2;`;
+  const find_query = 'SELECT username WHERE user_id = $1;'; 
+
+  newUsername = req.body.username; 
+  if (!newUsername || newUsername.trim() === '') {
+    return res.redirect('pages/settings.ejs', {username: username, session: req.session.user, message: 'Invalid username value provided' }); 
+  };
+
+
+  var updated_username = await db.one(alter_query, [req.body.username, req.session.user.user_id])
   .then(function (data) {
       res.status(201).json({
         status: 'success',
@@ -371,8 +379,8 @@ app.post('/settings', async (req, res) =>{
     // send error message
     .catch(function (err) {
       return console.log(err);
-    });;
-  return redirect('/settings'); 
+    });
+  return res.redirect('/settings'); 
 });
 
 app.get("/logout", (req, res) => {
