@@ -4,16 +4,19 @@ CREATE TABLE users (
     user_id SERIAL PRIMARY KEY,
     email varchar(255) NOT NULL,
     username varchar(45) NOT NULL,
-    password varchar(255) NOT NULL
+    password varchar(255) NOT NULL,
+    d_restric varchar(1000) 
 );
 
 CREATE TABLE recipes (
     recipe_id SERIAL PRIMARY KEY,
     recipe_text TEXT NOT NULL,
-    creator_id INT,
+    recipe_name VARCHAR(255),
+    user_id INT,
+    is_starred BOOLEAN,
 
     CONSTRAINT fk_creator
-        FOREIGN KEY(creator_id)
+        FOREIGN KEY(user_id)
             REFERENCES users(user_id)
 );
 

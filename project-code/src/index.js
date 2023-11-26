@@ -50,39 +50,42 @@ app.use(
 );
 
 app.get("/", (req, res) => {
-    res.render("pages/home.ejs");
+  console.log(req.session.user);
+  console.log(req.session); 
+    res.render("pages/home.ejs",{session: req.session.user});
 });
 
 app.get("/login", (req, res) => {
-    res.render("pages/login.ejs");
+    res.render("pages/login.ejs",{session: req.session.user});
 });
 
 
 app.post("/login", async (req, res) => {
   if (req.body.username == undefined || req.body.password == undefined || req.body.username.length == 0 || req.body.password.length == 0){
-      res.render("pages/login", {message: "Please enter a username and password.", error: true});
+      res.render("pages/login", {session: req.session.user, message: "Please enter a username and password.", error: true});
       return true;
   }
 
-  var user_sql = "SELECT * FROM users WHERE username = $1";
+  var user_sql = "SELECT user_id, email, username, d_restric, password FROM users WHERE username = $1";
   var username = req.body.username;
   if (/^.+@.+\..+$/.test(req.body.username)) { //log in with email
-    user_sql = "SELECT * FROM users WHERE email = $1";
+    user_sql = "SELECT user_id, email, username, d_restric, password FROM users WHERE email = $1";
     username = username.toLowerCase();
   }
 
   var user = null;
+
   try {
     user = await db.any(user_sql, [username]);
     if (user.length == 0){
         res.status(400);
-        res.render("pages/login", {message: "Incorrect username or password.", error: true});
+        res.render("pages/login", {session: req.session.user, message: "Incorrect username or password.", error: true});
         return true;
     }
   }
   catch(ex) {
     res.status(400);
-    res.render("pages/login", {message: "An internal error occured.", error: true});
+    res.render("pages/login", {session: req.session.user, message: "An internal error occured.", error: true});
     console.error(ex);
     return true;
   }
@@ -90,17 +93,111 @@ app.post("/login", async (req, res) => {
   const match = await bcrypt.compare(req.body.password, user[0].password);
 
   if (match){
-      req.session.user = user[0];
+      req.session.user = { //the session object - use this to get user_id, username, etc.
+        user_id: user[0].user_id,
+        username: user[0].username,
+        email: user[0].email,
+        d_restric: user[0].d_restric
+      };
       req.session.save();
       res.status(200);
       res.redirect('/kitchen');
+
     } else {
       res.status(400);
-      res.render("pages/login", {message: "Incorrect username or password.", error: true});
+      res.render("pages/login", {session: req.session.user, message: "Incorrect username or password.", error: true});
   }
-})
+});
+
+// aws bedrock api call
+
+
+// maybe there's a better way to do this,
+// not sure tho as I'm still figuring it out
+
+const AWS = require("aws-sdk");
+
+// Configure AWS with credentials
+// probably need to find a safer way to do this
+AWS.config.update({
+  accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+  secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+  region: process.env.AWS_REGION,
+});
+
+// Creating the bedrock service object
+const bedrock = new AWS.BedrockRuntime();
+
+// parses JSON-formatted request bodies 
+// makes the data readily available in a structured format under req.body
+app.use(bodyParser.json());
+
+// Defining the Bedrock API route
+app.post("/api/bedrock", async (req, res) => {
+  const { query } = req.body.prompt; // collecting the query params from body, this will be passed to the ai model
+
+  // query changes will need to be made, context before and other inputs will need to be added.
+  // We can work this out as a group to our liking
+  try {
+    const params = {
+      accept: 'application/json',
+      body: JSON.stringify({
+        prompt: query
+      }),
+      contentType: 'application/json',
+      modelId: 'anthropic.claude-instant-v1', // could be replaced with claude v2, we'll see what works best :)
+    };
+
+    const result = await bedrock.invokeModel(params).promise();
+
+    res.status(200).json(result); // we'll use this  to display result later
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Error invoking the model' });
+  }
+});
 
 // Authentication middleware.
+
+app.post("/register", async (req, res) => {
+  const hash = await bcrypt.hash(req.body.password, 10);
+  const query = 'INSERT INTO users(email, username, password) VALUES ($1,$2,$3)';
+  console.log(req.body.email)
+  const query2 = `SELECT * FROM users WHERE email = $1;`
+
+  const check_exist = await db.any(query2, [req.body.email])
+  if (check_exist.length > 0){
+    res.render('pages/login', {session: req.session.user})
+    return
+  }
+  /*db.one(query2)
+  .then(function(){
+    //res.redirect('/login');
+    res.render("pages/register");
+  })
+  .catch(error => {*/
+    //console.log('b')
+    //console.log(error)
+    
+    db.any(query, [
+      req.body.email,
+      'default user',
+      hash
+
+
+    ])
+    
+    res.redirect("/login")
+
+  //})
+  
+
+});
+
+app.get("/register", (req, res) => {
+    res.render("pages/register.ejs",{session: req.session.user});
+});
+
 const auth = (req, res, next) => {
   if (!req.session.user) {
     return res.redirect("/login");
@@ -110,42 +207,71 @@ const auth = (req, res, next) => {
 
 app.use(auth);
 
-app.post("/register", async (req, res) => {
-  const hash = await bcrypt.hash(req.body.password, 10);
-  const query = 'INSERT INTO users(username, password) VALUES ($1,$2)';
-  const query2 = `SELECT * FROM users WHERE username = '${req.body.username}';`
 
-  db.one(query2)
-  .then(function(){
-    res.redirect('/login');
-  })
-  .catch(error => {
-    db.any(query, [
-      req.body.username,
-      hash
-    ])
-    res.redirect("/login")
-  })
+//app.get('/kitchen', (req, res) => {
+//  res.render("pages/kitchen.ejs");
+//});
+
+//app.get("/kitchen", (req, res) => {
+  //res.render("pages/kitchen", { user_id: req.session.user.user_id });
   
-  res.render("pages/register");
+//});
+
+app.get("/kitchen", (req, res) => {
+  const user_recipes = 'SELECT * FROM recipes WHERE user_id = $1'
+  console.log('User ID:', req.session.user.user_id);
+
+  // Query to list all the recipes created by a user
+  db.any(user_recipes, [req.session.user.user_id])
+    .then((recipes) => {
+      // Render the 'kitchen' page with the 'recipes' array and 'user_id'
+      res.render('pages/kitchen', { recipes, session: req.session.user, user_id: req.session.user.user_id });
+
+    })
+    .catch((err) => {
+      res.render("pages/kitchen", {
+        recipes: [],
+        error: true,
+        message: err.message,
+        session: req.session.user
+      });
+    });
 });
 
-app.get("/register", (req, res) => {
-    res.render("pages/register.ejs");
-})
+app.post('/kitchen/create', async (req, res) => {
+  try {
+      const recipe_name = "test_recipe";
+      const user_id = req.session.user.user_id;
+      const is_starred = true;
+      const { recipe_text } = req.body;
 
-app.get("/logout", (req, res) => {
-  req.session.destroy();
-  res.redirect("/");
+      // Insert the new recipe into the recipes table
+      const newRecipe = await db.one('INSERT INTO recipes (recipe_text, recipe_name, user_id, is_starred) VALUES ($1, $2, $3, $4) RETURNING *', [recipe_text, recipe_name, user_id, is_starred]);
+      console.log(recipe_name);
+      return res.redirect("/kitchen");
+  } catch (error) {
+      console.error('Error creating recipe:', error);
+      res.status(500).json({
+          success: false,
+          message: 'Error creating recipe',
+          error: error.message,
+      });
+  }
 });
 
-app.get('/kitchen', (req, res) => {
-  res.render("pages/kitchen.ejs");
-});
 
 app.get('/welcome', (req, res) => {
   res.json({status: 'success', message: 'Welcome!'});
 });
+
+app.get("/api/posts_feed", (req, res) => { //placeholder api for posts 
+  const p = {
+    title: "Lorum Ipsum",
+    author: "user1234",
+    content: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
+  }
+  res.status(200).json({post_feed: [p, p, p, p]});
+})
 
 const all_user_ingredients = 
   `SELECT DISTINCT *
@@ -172,6 +298,7 @@ app.get('/pantry', async (req, res) => {
       res.render("pages/pantry.ejs", {
         ingredients,
         unused_ingredients,
+        session: req.session.user
       });
     })
     .catch((err) => {
@@ -180,6 +307,7 @@ app.get('/pantry', async (req, res) => {
         unused_ingredients: [],
         error: true,
         message: err.message,
+        session: req.session.user
       });
     });
 });
@@ -238,56 +366,114 @@ app.post('/pantry/search', async (req, res) => {
 });
 
 app.get('/favorites', (req, res) => {
-  res.render("pages/favorites.ejs");
+  res.render("pages/favorites.ejs",{session: req.session.user});
 });
 
-// aws bedrock api call
+app.get('/settings', async (req, res) => {
+  const user_id = req.session.user.user_id;
 
-
-// maybe there's a better way to do this,
-// not sure tho as I'm still figuring it out
-
-/*const AWS = require("aws-sdk");
-
-// Configure AWS with credentials
-// probably need to find a safer way to do this
-AWS.config.update({
-  accessKeyId: process.env.AWS_ACCESS_KEY_ID,
-  secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
-  region: process.env.AWS_REGION,
-});
-
-// Creating the bedrock service object
-const bedrock = new AWS.BedrockRuntime();
-
-// parses JSON-formatted request bodies 
-// makes the data readily available in a structured format under req.body
-app.use(bodyParser.json());
-
-// Defining the Bedrock API route
-app.post("/api/bedrock", async (req, res) => {
-  const { query } = req.body; // collecting the query params from body, this will be passed to the ai model
-
-  // query changes will need to be made, context before and other inputs will need to be added.
-  // We can work this out as a group to our liking
   try {
-    const params = {
-      accept: 'application/json',
-      body: JSON.stringify({
-        prompt: query
-      }),
-      contentType: 'application/json',
-      modelId: 'anthropic.claude-instant-v1', // could be replaced with claude v2, we'll see what works best :)
-    };
+    const query1 = 'SELECT username FROM users WHERE user_id = $1';
+    const query2 = 'SELECT d_restric FROM users WHERE user_id = $1';
 
-    const result = await bedrock.invokeModel(params).promise();
-    res.status(200).json(result); // we'll use this  to display result later
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: 'Error invoking the model' });
+    const data = await db.task('get-everything', async task => {
+      const result1 = await task.one(query1, user_id);
+      const result2 = await task.one(query2, user_id);
+      return [result1, result2];
+    });
+
+    const username = data[0].username;
+    const dietaryRestrictions = data[1].d_restric;
+
+    res.render('pages/settings.ejs', {
+      username: username,
+      res: dietaryRestrictions,
+      session: req.session.user
+    });
+  } catch (err) {
+    console.error('Error fetching data:', err);
+    res.status(400).send('Error fetching data');
   }
 });
-*/
+
+
+
+app.post('/settings', async (req, res) =>{
+  // Check if req.body.username is valid before updating
+const newUsername = req.body.username;
+const restric = req.body.d_res; 
+console.log("Body username:");
+console.log(req.body.username); 
+console.log("Body restrictions:");
+console.log(req.body.d_res); 
+
+if ( (!newUsername || newUsername.trim() === '') && (!restric || restric.trim() === '') ) {
+  return res.redirect('/settings'); 
+} 
+
+const alterU_query = `UPDATE users SET username = '${newUsername}' WHERE user_id = ${req.session.user.user_id} RETURNING username;`;
+const alterR_query = `UPDATE users SET d_restric = '${restric}' WHERE user_id = ${req.session.user.user_id} RETURNING d_restric;`;
+
+let update = await db.task('get-everything', task => {
+    if (!newUsername && restric){
+      return task.one(alterR_query);
+    }
+    else if (!restric && newUsername){
+      return task.one(alterU_query);
+    }
+    else {
+      return task.batch([task.one(alterR_query), task.one(alterU_query)]);
+    }
+  })
+    // if query execution succeeds
+    // query results can be obtained
+    // as shown below
+    .then(data => {
+      console.log(data); 
+
+      res.status(200);/*.json({
+        current_user: data[0],
+        city_users: data[1],
+      });*/ 
+      return res.redirect('/settings'); 
+    })
+    // if query execution fails
+    // send error message
+    .catch(err => {
+      console.log('Uh Oh spaghettio');
+      console.log(err);
+      res.status('400').json({
+        error: err,
+      });
+      res.redirect('/'); 
+    });
+
+});
+/*var update = await db.oneOrNone(alter_query, [newUsername, req.session.user.user_id])
+  .then(function (data) {
+    if (data) {
+      console.log(data);
+      console.log("Updated Username: ", data.username);
+      // Return/render the updated username
+      return res.redirect('/settings');
+    } else {
+
+      console.log("Username update failed or no data returned.");
+      return res.redirect('/settings');
+    }
+  })
+  .catch(function (err) {
+    console.error("Error updating username: ", err);
+    return res.redirect('/settings');
+
+  });
+ 
+});*/
+
+app.get("/logout", (req, res) => {
+  req.session.destroy();
+  res.redirect("/")
+});
 
 app.listen(3000);
 console.log("Server listening on port 3000"); 

@@ -1,6 +1,6 @@
 .title {
     font-weight: bold;
-    margin-top: 40px;
+    margin-top: 20px;
     margin-bottom: 45px;
     
 }
@@ -16,7 +16,7 @@ h1{
 
 body {
     
-    background-color: #0A703C;
+    background-color: rgb(76, 168, 68);
 }
 
 .info {
@@ -52,6 +52,21 @@ a {
     text-decoration: inherit;
 }
 
+.accent_1 {
+    background-color: rgb(255, 173, 51);
+
+}
+
+.accent_2 {
+    background-color: rgb(255, 147, 31);
+
+}
+
+.accent_3 {
+    background-color: rgb(255, 126, 51);
+
+
+}
 
 .hover{
     color: #FFFDF7;
@@ -59,4 +74,21 @@ a {
 
 .hover:hover{
     font-size: 110%;
+}
+
+.fav {
+    margin-top: 60px;
+    margin-left: 15%;
+    margin-right: 15%;
+    
+}
+
+.set {
+   
+    margin-right: 15%;
+    margin-left: 15%;
+}
+
+.rec{
+    margin-top: 20px;
 }
