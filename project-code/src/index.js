@@ -337,51 +337,106 @@ app.get('/favorites', (req, res) => {
   res.render("pages/favorites.ejs",{session: req.session.user});
 });
 
-app.get('/settings', (req, res) => {
-  console.log(req.session.user);
+app.get('/settings', async (req, res) => {
   const user_id = req.session.user.user_id;
-  const query1 = 'SELECT username FROM users WHERE user_id = $1'
-  db.one(query1, user_id) 
-    .then((username) => {
-      console.log(username);
-      res.render('pages/settings.ejs', {username: username, session: req.session.user });
-    })
-    .catch((err) => {
-      res.render("pages/settings.ejs", {
-        error: true,
-        message: err.message,
-        session: req.session.user
-      });
+
+  try {
+    const query1 = 'SELECT username FROM users WHERE user_id = $1';
+    const query2 = 'SELECT d_restric FROM users WHERE user_id = $1';
+
+    const data = await db.task('get-everything', async task => {
+      const result1 = await task.one(query1, user_id);
+      const result2 = await task.one(query2, user_id);
+      return [result1, result2];
     });
-  
+
+    const username = data[0].username;
+    const dietaryRestrictions = data[1].d_restric;
+
+    res.render('pages/settings.ejs', {
+      username: username,
+      res: dietaryRestrictions,
+      session: req.session.user
+    });
+  } catch (err) {
+    console.error('Error fetching data:', err);
+    res.status(400).send('Error fetching data');
+  }
 });
+
 
 
 app.post('/settings', async (req, res) =>{
-  const alter_query = `UPDATE users SET username = $1 WHERE user_id = $2;`;
-  const find_query = 'SELECT username WHERE user_id = $1;'; 
+  // Check if req.body.username is valid before updating
+const newUsername = req.body.username;
+const restric = req.body.d_res; 
+console.log("Body username:");
+console.log(req.body.username); 
+console.log("Body restrictions:");
+console.log(req.body.d_res); 
 
-  newUsername = req.body.username; 
-  if (!newUsername || newUsername.trim() === '') {
-    return res.redirect('pages/settings.ejs', {username: username, session: req.session.user, message: 'Invalid username value provided' }); 
-  };
+if ( (!newUsername || newUsername.trim() === '') && (!restric || restric.trim() === '') ) {
+  return res.redirect('/settings'); 
+} 
 
+const alterU_query = `UPDATE users SET username = '${newUsername}' WHERE user_id = ${req.session.user.user_id} RETURNING username;`;
+const alterR_query = `UPDATE users SET d_restric = '${restric}' WHERE user_id = ${req.session.user.user_id} RETURNING d_restric;`;
 
-  var updated_username = await db.one(alter_query, [req.body.username, req.session.user.user_id])
-  .then(function (data) {
-      res.status(201).json({
-        status: 'success',
-        data: data,
-        message: 'data added successfully',
-      });
+let update = await db.task('get-everything', task => {
+    if (!newUsername && restric){
+      return task.one(alterR_query);
+    }
+    else if (!restric && newUsername){
+      return task.one(alterU_query);
+    }
+    else {
+      return task.batch([task.one(alterR_query), task.one(alterU_query)]);
+    }
+  })
+    // if query execution succeeds
+    // query results can be obtained
+    // as shown below
+    .then(data => {
+      console.log(data); 
+
+      res.status(200);/*.json({
+        current_user: data[0],
+        city_users: data[1],
+      });*/ 
+      return res.redirect('/settings'); 
     })
     // if query execution fails
     // send error message
-    .catch(function (err) {
-      return console.log(err);
+    .catch(err => {
+      console.log('Uh Oh spaghettio');
+      console.log(err);
+      res.status('400').json({
+        error: err,
+      });
+      res.redirect('/'); 
     });
-  return res.redirect('/settings'); 
+
 });
+/*var update = await db.oneOrNone(alter_query, [newUsername, req.session.user.user_id])
+  .then(function (data) {
+    if (data) {
+      console.log(data);
+      console.log("Updated Username: ", data.username);
+      // Return/render the updated username
+      return res.redirect('/settings');
+    } else {
+
+      console.log("Username update failed or no data returned.");
+      return res.redirect('/settings');
+    }
+  })
+  .catch(function (err) {
+    console.error("Error updating username: ", err);
+    return res.redirect('/settings');
+
+  });
+ 
+});*/
 
 app.get("/logout", (req, res) => {
   req.session.destroy();
