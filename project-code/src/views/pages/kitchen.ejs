@@ -63,11 +63,23 @@
                     <table class="table-success-subtle">
                         <thead>
                             <tr>
-                                
+                                 <td><h2>Past Recipes:</h2></td>
                             </tr>
                         </thead>
                         <tbody>
-                            
+                                <% if (recipes && recipes.length > 0) { %> 
+                                    <% recipes.slice(0,10).forEach(function(recipe) { %> 
+                                        <tr> 
+                                            <td class="row"> 
+                                                <a class="hover-dark"><%= recipe.recipe_name %></a>
+                                                 
+                                            <td> 
+                                        </tr>                                        
+                                    <% }); %> 
+                            <% } else { %> 
+                                <tr><td>No recipes found</td></tr> 
+                   
+                            <% } %> 
                             
                         </tbody>
                     </table>
