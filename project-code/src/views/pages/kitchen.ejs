@@ -14,7 +14,9 @@
                                 <td>
                                     <form>
                                         <div class="form-group">
-                                            <textarea class="form-control" id="dynamicTextBox" rows="15" readonly></textarea>
+                                            <textarea class="form-control" id="dynamicTextBox" rows="15" readonly>
+                                                <%= (display_recipe_index != null && recipes.length > display_recipe_index) ? recipes[display_recipe_index].recipe_text.replaceAll('\\n', '\n') : "" %>
+                                            </textarea>
                                         </div>
                                     </form>
                                 </td>
@@ -69,7 +71,7 @@
                         </thead>
                         <tbody>
                                 <% if (recipes && recipes.length > 0) { %> 
-                                    <% recipes.slice(0,10).forEach(function(recipe) { %> 
+                                    <% recipes.slice(0,10).forEach(function(recipe, r_index) { %> 
                                         <tr> 
                                             <td class="row"> 
                                                 <a class="hover-dark" data-bs-toggle="modal" data-bs-target="#recipeModal<%= recipe.recipe_id %>">
