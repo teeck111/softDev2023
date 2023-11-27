@@ -1,5 +1,6 @@
 <%- include ('../partials/header') %>
 <%- include ('../partials/menu') %>
+<script src="../resources/js/javascript.js"></script>
 
 <main>
     <div class="container-fluid">
@@ -73,10 +74,38 @@
                                     <% recipes.slice(0,10).forEach(function(recipe, r_index) { %> 
                                         <tr> 
                                             <td class="row"> 
-                                                <a class="hover-dark" style="cursor: pointer" href=<%= "/kitchen?recipe_index=" + r_index %>><%= recipe.recipe_name %></span>
+                                                <a class="hover-dark" data-bs-toggle="modal" data-bs-target="#recipeModal<%= recipe.recipe_id %>">
+                                                    <%= recipe.recipe_name %>
+                                                  </a>
                                                  
                                             <td> 
-                                        </tr>                                        
+                                        </tr>        
+                                        <div class="modal fade" id="recipeModal<%= recipe.recipe_id %>" tabindex="-1" aria-labelledby="recipeModalLabel" aria-hidden="true">
+                                            <div class="modal-dialog">
+                                              <div class="modal-content">
+                                                <div class="modal-header">
+                                                  <h5 class="modal-title" id="recipeModalLabel"><%= recipe.recipe_name %></h5>
+                                                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                </div>
+                                                <div class="modal-body">
+                                                    <form id="editRecipeForm">
+                                                        <div class="mb-3">
+                                                          <label for="recipeName" class="form-label">Recipe Name:</label>
+                                                          <input type="text" class="form-control" id="recipeName" value="<%= recipe.recipe_name %>" required>
+                                                        </div>
+                                                        <div class="mb-3">
+                                                          <label for="recipeText" class="form-label">Recipe Text:</label>
+                                                          <textarea class="form-control" id="recipeText" rows="4" required><%= recipe.recipe_text %></textarea>
+                                                        </div>
+                                                      </form>
+                                                </div>
+                                                <div class="modal-footer">
+                                                  <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                                  <button type="button" class="btn btn-primary" onclick="saveRecipeChanges(<%= recipe.recipe_id %>)">Save Changes</button>
+                                                </div>
+                                              </div>
+                                            </div>
+                                          </div>                                
                                     <% }); %> 
                             <% } else { %> 
                                 <tr><td>No recipes found</td></tr> 

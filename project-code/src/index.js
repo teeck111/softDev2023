@@ -226,7 +226,6 @@ app.get("/kitchen", (req, res) => {
 
   const user_recipes = 'SELECT * FROM recipes WHERE user_id = $1 ORDER BY recipe_id DESC LIMIT 10'
 
-  // Query to list all the recipes created by a user
   db.any(user_recipes, [req.session.user.user_id])
     .then((recipes) => {
       // Render the 'kitchen' page with the 'recipes' array and 'user_id'
@@ -258,6 +257,22 @@ app.post('/kitchen/create', async (req, res) => {
           message: 'Error creating recipe',
           error: error.message,
       });
+  }
+});
+
+
+app.put('/kitchen/update/:recipeId', async (req, res) => {
+  const recipeId = req.params.recipeId;
+  const { recipeName, recipeText } = req.body;
+
+  try {
+    const updateQuery = 'UPDATE recipes SET recipe_name = $1, recipe_text = $2 WHERE recipe_id = $3 RETURNING *';
+    console.log(recipeName);
+    const updatedRecipe = await db.one(updateQuery, [recipeName, recipeText, recipeId]);
+
+  } catch (error) {
+    console.error('Error updating recipe:', error);
+    res.status(500).json({ error: 'Internal server error' });
   }
 });
 
