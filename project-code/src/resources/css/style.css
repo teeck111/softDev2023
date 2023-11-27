@@ -72,6 +72,14 @@ a {
     color: #FFFDF7;
 }
 
+.hover-dark{
+    color: #000000;
+}
+
+.hover-dark:hover{
+    font-size: 110%;
+}
+
 .hover:hover{
     font-size: 110%;
 }
