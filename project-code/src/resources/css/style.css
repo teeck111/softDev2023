@@ -100,3 +100,8 @@ a {
 .rec{
     margin-top: 20px;
 }
+
+.modal-wide .modal-dialog {
+    max-width: 800px;
+
+}

@@ -22,38 +22,30 @@
                             </tr>
                             <tr>
                                 <td>
-                                    
-                                        <form id="KitchenForm">
-                                            <label for="prompt" class="col col-form-label">Tell us what you're in the mood for:</label>
-                                            <div class="row mb-3">
-                                              
-                                              <div class="col-9">
+                                    <form id="KitchenForm" action="/kitchen/create" method="post">
+                                        <label for="prompt" class="col col-form-label">Tell us what you're in the mood for:</label>
+                                        <div class="row mb-3">
+                                            <div class="col-9">
                                                 <input type="text" class="form-control border border-success" id="prompt" name="prompt">
-                                      
-                                              </div>
-                                              <div class="col">
-                                                <button type="submit" class="btn btn-outline-success" formaction="/kitchen/create">Create</button>
                                             </div>
                                             <div class="col">
-                                                <button type="submit" class="btn btn-outline-success" formaction="/kitchen/post">Post</button>
+                                                <button type="submit" class="btn btn-outline-success" name="action" value="create">Create</button>
                                             </div>
+                                            <div class="col">
+                                                <button type="submit" class="btn btn-outline-success" name="action" value="post">Post</button>
                                             </div>
-                                          </form>  
-                                    
+                                        </div>
+                                        <div class="btn-group" role="group" aria-label="Basic radio toggle button group">
+                                            <input type="radio" class="btn-check" name="btnradio" id="pantry_true" autocomplete="off" checked>
+                                            <label class="btn btn-outline-success" for="pantry_true">Restricted</label>
+                            
+                                            <input type="radio" class="btn-check" name="btnradio" id="pantry_false" autocomplete="off">
+                                            <label class="btn btn-outline-success" for="pantry_false">Un-restricted</label>
+                                        </div>
+                                    </form>
                                 </td>
                             </tr>
-                            <tr>
-                                <td>
-                                    <div class="btn-group" role="group" aria-label="Basic radio toggle button group">
-                                        <input type="radio" class="btn-check" name="btnradio" id="pantry_true" autocomplete="off" checked>
-                                        <label class="btn btn-outline-success" for="pantry_true">Restricted</label>
-                                      
-                                        <input type="radio" class="btn-check" name="btnradio" id="pantry_false" autocomplete="off">
-                                        <label class="btn btn-outline-success" for="pantry_false">Un-restricted</label>
-                                      
-                                      </div>
-                                </td>
-                            </tr>
+                
                         </tbody>
                     </table>
                 </div>
@@ -78,7 +70,7 @@
                                                  
                                             <td> 
                                         </tr>        
-                                        <div class="modal fade" id="recipeModal<%= recipe.recipe_id %>" tabindex="-1" aria-labelledby="recipeModalLabel" aria-hidden="true">
+                                        <div class="modal fade modal-wide" id="recipeModal<%= recipe.recipe_id %>" tabindex="-1" aria-labelledby="recipeModalLabel" aria-hidden="true">
                                             <div class="modal-dialog">
                                               <div class="modal-content">
                                                 <div class="modal-header">
@@ -95,11 +87,16 @@
                                                           <label for="recipeText" class="form-label">Recipe Text:</label>
                                                           <textarea class="form-control" id="recipeText" rows="4" required><%= recipe.recipe_text %></textarea>
                                                         </div>
+                                                        <div class="mb-3 form-check">
+                                                            <input type="checkbox" class="form-check-input" id="favoriteRecipe" <% if (recipe.is_starred) { %> checked <% } %>>
+                                                            <label class="form-check-label" for="favoriteRecipe">Favorite Recipe</label>
+                                                        </div>
                                                       </form>
                                                 </div>
                                                 <div class="modal-footer">
-                                                  <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" aria-label="Close">Close</button>
                                                   <button type="button" class="btn btn-primary" onclick="saveRecipeChanges(<%= recipe.recipe_id %>)">Save Changes</button>
+                                                  <button type="button" class="btn btn-primary" formaction="/kitchen/post">Post</button>
                                                 </div>
                                               </div>
                                             </div>
