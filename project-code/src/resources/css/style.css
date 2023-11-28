@@ -14,8 +14,11 @@ h1{
 
 }
 
+.container{
+    font-family: Arial, Helvetica, sans-serif;
+}
+
 body {
-    
     background-color: rgb(76, 168, 68);
 }
 

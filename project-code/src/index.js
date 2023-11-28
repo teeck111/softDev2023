@@ -218,13 +218,19 @@ app.use(auth);
 //});
 
 app.get("/kitchen", (req, res) => {
-  const user_recipes = 'SELECT * FROM recipes WHERE user_id = $1'
+
+  if (!req.session.user.user_id){
+    res.status(406).json({message: "Missing user_id in session cookie!", session: req.session});
+    return;
+  }
+
+  const user_recipes = 'SELECT * FROM recipes WHERE user_id = $1 ORDER BY recipe_id DESC LIMIT 10'
 
   db.any(user_recipes, [req.session.user.user_id])
     .then((recipes) => {
       // Render the 'kitchen' page with the 'recipes' array and 'user_id'
       console.log('User ID:', req.session.user.user_id);
-      res.render('pages/kitchen', { recipes, session: req.session.user, user_id: req.session.user.user_id });
+      res.render('pages/kitchen', { recipes, session: req.session.user, user_id: req.session.user.user_id, display_recipe_index: req.query.recipe_index });
 
     })
     .catch((err) => {
@@ -232,7 +238,8 @@ app.get("/kitchen", (req, res) => {
         recipes: [],
         error: true,
         message: err.message,
-        session: req.session.user
+        session: req.session.user,
+        display_recipe_index: null
       });
     });
 });
@@ -253,6 +260,7 @@ app.post('/kitchen/create', async (req, res) => {
   }
 });
 
+
 app.put('/kitchen/update/:recipeId', async (req, res) => {
   const recipeId = req.params.recipeId;
   const { recipeName, recipeText } = req.body;
@@ -267,7 +275,6 @@ app.put('/kitchen/update/:recipeId', async (req, res) => {
     res.status(500).json({ error: 'Internal server error' });
   }
 });
-
 
 app.get('/welcome', (req, res) => {
   res.json({status: 'success', message: 'Welcome!'});
