@@ -9,6 +9,9 @@
                     <tr>
                         <th>Your Ingredients</th>
                     </tr>
+                </table>
+                <div style="overflow: auto; max-height: 75vh; border: 1px solid #ccc; padding: 10px;">
+                    <table>
                     <% var table_rows = '';
                         ingredients.forEach(function(item){
                             table_rows += `<tr><td>${item.ingredient_text}</td>
@@ -19,7 +22,8 @@
                         });
                         %>
                     <%- table_rows %>
-                </table>
+                    </table>
+                </div>
             </div>
             <div class="col bg-success-subtle border-start border-4 border-dark" style="max-height: 100%">
                 <table>
@@ -38,26 +42,28 @@
                         </td>
                     </tr>
                     <tr>
-                        <td>Available Ingredients</td>
+                        <th>Available Ingredients</th>
                     </tr>
-                    <tr>
-                        <% var table_rows = '';
-                        unused_ingredients.forEach(function(item){
-                            table_rows += `<tr><td>${item.ingredient_text}</td>
-                                <td><form action="/pantry/add" method="POST">
-                                    <input type="submit" value="ADD" />
-                                    <input type="hidden" name="ingredient_id" value="${item.ingredient_id}">
-                                </form></td></tr>`;
-                        });
-                        %>
-                    <%- table_rows %>
-                    </tr>
-                </table>
+                    </table>
+                        <div style="overflow: auto; max-height: 40vh; border: 1px solid #ccc; padding: 10px;">
+                            <table>
+                            <tr>
+                                <% var table_rows = '';
+                                unused_ingredients.forEach(function(item){
+                                    table_rows += `<tr><td>${item.ingredient_text}</td>
+                                        <td><form action="/pantry/add" method="POST">
+                                            <input type="submit" value="ADD" />
+                                            <input type="hidden" name="ingredient_id" value="${item.ingredient_id}">
+                                        </form></td></tr>`;
+                                });
+                                %>
+                            <%- table_rows %>
+                            </tr>
+                            </table>
+                        </div>
             </div>
         </div>
     </div>
 </main>
-
-
 
 <%- include ('../partials/footer') %>
