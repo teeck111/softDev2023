@@ -4,7 +4,18 @@ const pgp = require("pg-promise")();
 const bodyParser = require("body-parser");
 const session = require("express-session");
 const bcrypt = require("bcrypt");
+const AWS = require("aws-sdk");
 
+AWS.config.update({
+  accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+  secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+  region: process.env.AWS_REGION,
+});
+
+// Creating the bedrock service object
+const bedrock = new AWS.BedrockRuntime();
+
+app.use(bodyParser.json());
 
 
 // db config
@@ -109,54 +120,6 @@ app.post("/login", async (req, res) => {
   }
 });
 
-// aws bedrock api call
-
-
-// maybe there's a better way to do this,
-// not sure tho as I'm still figuring it out
-
-const AWS = require("aws-sdk");
-
-// Configure AWS with credentials
-// probably need to find a safer way to do this
-AWS.config.update({
-  accessKeyId: process.env.AWS_ACCESS_KEY_ID,
-  secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
-  region: process.env.AWS_REGION,
-});
-
-// Creating the bedrock service object
-const bedrock = new AWS.BedrockRuntime();
-
-// parses JSON-formatted request bodies 
-// makes the data readily available in a structured format under req.body
-app.use(bodyParser.json());
-
-// Defining the Bedrock API route
-app.post("/api/bedrock", async (req, res) => {
-  const { query } = req.body.prompt; // collecting the query params from body, this will be passed to the ai model
-
-  // query changes will need to be made, context before and other inputs will need to be added.
-  // We can work this out as a group to our liking
-  try {
-    const params = {
-      accept: 'application/json',
-      body: JSON.stringify({
-        prompt: query
-      }),
-      contentType: 'application/json',
-      modelId: 'anthropic.claude-instant-v1', // could be replaced with claude v2, we'll see what works best :)
-    };
-
-    const result = await bedrock.invokeModel(params).promise();
-
-    res.status(200).json(result); // we'll use this  to display result later
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: 'Error invoking the model' });
-  }
-});
-
 // Authentication middleware.
 
 app.post("/register", async (req, res) => {
@@ -244,15 +207,81 @@ app.get("/kitchen", (req, res) => {
     });
 });
 
+
+//This post call is responsible for the following:
+//Collecting ingredients if specified by user
+//Promting claude withe user promt and ingredients(if specified)
+//Updating the kitchen page with the generated recipe
+
 app.post('/kitchen/create', async (req, res) => {
+  const prompt = req.body.prompt; 
+  const user_id = req.session.user.user_id; 
+  // TODO: Figure out how to get if it's started
+  const is_starred = false;
+  const restrictionChoice = req.body.isRestricted;
+  const isRestricted = restrictionChoice === 'pantry_true';
+  let query;
+
+  // if isRestricted then use the ingredients
+  if(isRestricted === true)
+  {
+    try{
+    const ingredients = await db.any('SELECT ingredients.ingredient_text FROM ingredients INNER JOIN users_to_ingredients ON ingredients.ingredient_id = users_to_ingredients.ingredient_id WHERE users_to_ingredients.user_id = $1', [user_id])
+    query = `
+    Generate a recipe that aligns with the user's input and ingredient preferences. User's input: "${prompt}". The recipe should only utilize ingredients from this list: ${ingredients}. Format the output as JSON, structured with keys for the recipe name and the recipe details, as shown below:
+    
+    {
+      "recipeName": "<Name of the Recipe>",
+      "recipeDetails": "<Detailed Recipe Instructions>"
+    }
+    `;
+    } catch(error){
+      console.error("Error:", error);
+      return res.status(407).json({ message: "Error querying ingredients", error: error });
+    };
+  }else{
+    // restricted is not selected so we won't need to use ingredients
+    query = `
+    Generate a recipe based on the user's input: "${prompt}".
+    Output should be in JSON format, containing keys for both the recipe name and the recipe details. Structure the response as follows:
+    
+    {
+      "recipeName": "<Name of the Recipe>",
+      "recipeDetails": "<Detailed Recipe Instructions>"
+    }
+    `
+  }
+
   try {
-      // Insert the new recipe into the recipes table
-      const newRecipe = await db.one('INSERT INTO recipes (recipe_text, recipe_name, user_id, is_starred) VALUES ($1, $2, $3, $4) RETURNING *', [recipe_text, recipe_name, user_id, is_starred]);
-      console.log(recipe_name);
-      return res.redirect("/kitchen");
+    const params = {
+      accept: 'application/json',
+      body: JSON.stringify({
+        prompt: query
+      }),
+      contentType: 'application/json',
+      modelId: 'anthropic.claude-instant-v1', // could be replaced with claude v2, we'll see what works best :)
+    };
+
+  const bedrockResult = await bedrock.invokeModel(params).promise();
+
+  // TODO console log the result to determine how to access specific data in JSON the below text and name may be collected incorectly
+  const recipe_text = bedrockResult.recipeDetails;
+  const recipe_name = bedrockResult.recipeName;
+
+  // Insert the new recipe into the recipes table
+  const newRecipe = await db.one('INSERT INTO recipes (recipe_text, recipe_name, user_id, is_starred) VALUES ($1, $2, $3, $4) RETURNING *', [recipe_text, recipe_name, user_id, is_starred]);
+  
+  const bedrockreturn = {
+    recipeName: recipe_name,
+    recipeDetails: recipe_text
+  };
+
+  // Render the kitchen page with the Bedrock API response data
+  res.render("pages/kitchen", { bedrockreturn: bedrockreturn });
+    return;
   } catch (error) {
       console.error('Error creating recipe:', error);
-      res.status(500).json({
+      res.status(408).json({
           success: false,
           message: 'Error creating recipe',
           error: error.message,
