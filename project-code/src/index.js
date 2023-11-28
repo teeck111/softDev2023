@@ -292,12 +292,14 @@ const all_unused_ingredients =
   ORDER BY i.ingredient_text ASC;`;
 
 app.get('/pantry', async (req, res) => {
+  var searchbar_val = '';
   var unused_ingredients = await db.any(all_unused_ingredients, [req.session.user.user_id]);
   db.any(all_user_ingredients, [req.session.user.user_id])
     .then((ingredients) => {
       res.render("pages/pantry.ejs", {
         ingredients,
         unused_ingredients,
+        searchbar_val,
         session: req.session.user
       });
     })
@@ -305,6 +307,7 @@ app.get('/pantry', async (req, res) => {
       res.render("pages/pantry.ejs", {
         ingredients: [],
         unused_ingredients: [],
+        searchbar_val,
         error: true,
         message: err.message,
         session: req.session.user
@@ -344,12 +347,14 @@ app.post('/pantry/search', async (req, res) => {
   )
   AND LOWER(i.ingredient_text) LIKE LOWER('${req.body.search_val}%')
   ORDER BY i.ingredient_text ASC;`;
+  var searchbar_val = req.body.search_val;
   var unused_ingredients = await db.any(search_ingredients, [req.session.user.user_id]);
   db.any(all_user_ingredients, [req.session.user.user_id])
     .then((ingredients) => {
       res.render("pages/pantry.ejs", {
         ingredients,
         unused_ingredients,
+        searchbar_val,
         session: req.session.user
       });
     })
@@ -357,6 +362,7 @@ app.post('/pantry/search', async (req, res) => {
       res.render("pages/pantry.ejs", {
         ingredients: [],
         unused_ingredients: [],
+        searchbar_val,
         error: true,
         message: err.message,
         session: req.session.user
