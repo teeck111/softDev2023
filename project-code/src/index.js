@@ -333,7 +333,6 @@ app.post("/pantry/add", async (req, res) => {
 });
 
 app.post('/pantry/search', async (req, res) => {
-  console.log(req.body.search_val);
   var search_ingredients = 
   `SELECT *
   FROM ingredients i
@@ -343,24 +342,24 @@ app.post('/pantry/search', async (req, res) => {
     WHERE u_to_i.ingredient_id = i.ingredient_id
     AND u_to_i.user_id = $1
   )
-  AND i.ingredient_text LIKE '${req.body.search_val}%'
+  AND LOWER(i.ingredient_text) LIKE LOWER('${req.body.search_val}%')
   ORDER BY i.ingredient_text ASC;`;
   var unused_ingredients = await db.any(search_ingredients, [req.session.user.user_id]);
-  console.log(unused_ingredients);
   db.any(all_user_ingredients, [req.session.user.user_id])
     .then((ingredients) => {
       res.render("pages/pantry.ejs", {
         ingredients,
         unused_ingredients,
+        session: req.session.user
       });
     })
     .catch((err) => {
-      console.log(err);
       res.render("pages/pantry.ejs", {
         ingredients: [],
         unused_ingredients: [],
         error: true,
         message: err.message,
+        session: req.session.user
       });
     });
 });

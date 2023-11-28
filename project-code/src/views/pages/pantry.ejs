@@ -7,16 +7,16 @@
             <div class="col-6">
                 <table>
                     <tr>
-                        <th>Your Ingredients</th>
+                        <th style="font-size:x-large">Your Ingredients</th>
                     </tr>
                 </table>
-                <div style="overflow: auto; max-height: 75vh; border: 1px solid #ccc; padding: 10px;">
+                <div style="overflow: auto; max-height: 75vh; border: 2px solid; border-color: black; padding: 10px;">
                     <table>
                     <% var table_rows = '';
                         ingredients.forEach(function(item){
                             table_rows += `<tr><td>${item.ingredient_text}</td>
                                 <td><form action="/pantry/delete" method="POST">
-                                    <input type="submit" value="DELETE" />
+                                    <input type="submit" value="REMOVE" class="btn btn-outline-success" style="background-color:#05310b"/>
                                     <input type="hidden" name="ingredient_id" value="${item.ingredient_id}">
                                 </form></td></tr>`;
                         });
@@ -28,31 +28,41 @@
             <div class="col bg-success-subtle border-start border-4 border-dark" style="max-height: 100%">
                 <table>
                     <tr>
-                        <th>Add Ingredients</th>
+                        <th style="font-size:x-large">Add Ingredients</th>
                     </tr>
                     <tr>
                         <td>
-                        <form action="/pantry/search" method="POST">
+                        <form action="/pantry/search" method="POST" id="ingredient_search">
+                            <!-- <label for="search_val" class="col col-form-label">Find an Ingredient</label> -->
                             <div class="form-group">
                                 <label for="search_val">Find an Ingredient</label>
                                 <input type="search_val" class="form-control" name="search_val">
+                                <button type="submit" class="btn btn-outline-success">Search</button>
                             </div>
-                            <button type="submit" class="btn btn-primary">Search</button>
+                            <!-- <div class="row mb-3">   
+                                <div class="col-9">
+                                  <input type="text" class="form-control" id="seach_val" name="search_val">
+                                </div>
+                                <div class="col">
+                                  <button type="submit" class="btn btn-outline-success">Search</button>
+                              </div>
+                            </div> -->
+                            <!-- <button type="submit" class="btn btn-outline-success">Search</button> -->
                         </form>
                         </td>
                     </tr>
                     <tr>
-                        <th>Available Ingredients</th>
+                        <th style="font-size:x-large">Available Ingredients</th>
                     </tr>
                     </table>
-                        <div style="overflow: auto; max-height: 40vh; border: 1px solid #ccc; padding: 10px;">
+                        <div style="overflow: auto; max-height: 50vh; border: 2px solid black; padding: 10px;">
                             <table>
                             <tr>
                                 <% var table_rows = '';
                                 unused_ingredients.forEach(function(item){
                                     table_rows += `<tr><td>${item.ingredient_text}</td>
                                         <td><form action="/pantry/add" method="POST">
-                                            <input type="submit" value="ADD" />
+                                            <input type="submit" value="ADD" class="btn btn-outline-success"/>
                                             <input type="hidden" name="ingredient_id" value="${item.ingredient_id}">
                                         </form></td></tr>`;
                                 });
