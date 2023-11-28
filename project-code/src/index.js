@@ -451,10 +451,7 @@ app.post('/settings', async (req, res) =>{
   // Check if req.body.username is valid before updating
 const newUsername = req.body.username;
 const restric = req.body.d_res; 
-console.log("Body username:");
-console.log(req.body.username); 
-console.log("Body restrictions:");
-console.log(req.body.d_res); 
+
 
 if ( (!newUsername || newUsername.trim() === '') && (!restric || restric.trim() === '') ) {
   return res.redirect('/settings'); 
@@ -498,26 +495,6 @@ let update = await db.task('get-everything', task => {
     });
 
 });
-/*var update = await db.oneOrNone(alter_query, [newUsername, req.session.user.user_id])
-  .then(function (data) {
-    if (data) {
-      console.log(data);
-      console.log("Updated Username: ", data.username);
-      // Return/render the updated username
-      return res.redirect('/settings');
-    } else {
-
-      console.log("Username update failed or no data returned.");
-      return res.redirect('/settings');
-    }
-  })
-  .catch(function (err) {
-    console.error("Error updating username: ", err);
-    return res.redirect('/settings');
-
-  });
- 
-});*/
 
 app.get("/logout", (req, res) => {
   req.session.destroy();
