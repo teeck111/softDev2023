@@ -407,6 +407,7 @@ app.get('/settings', async (req, res) => {
     console.error('Error fetching data:', err);
     res.status(400).send('Error fetching data');
   }
+
 });
 
 app.get("/favorites", (req, res) => {
