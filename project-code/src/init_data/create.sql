@@ -4,7 +4,8 @@ CREATE TABLE users (
     user_id SERIAL PRIMARY KEY,
     email varchar(255) NOT NULL,
     username varchar(45) NOT NULL,
-    password varchar(255) NOT NULL
+    password varchar(255) NOT NULL,
+    d_restric varchar(1000) 
 );
 
 CREATE TABLE recipes (
@@ -21,7 +22,7 @@ CREATE TABLE recipes (
 
 CREATE TABLE ingredients (
     ingredient_id SERIAL PRIMARY KEY,
-    ingredient_text VARCHAR(45) NOT NULL,
+    ingredient_text VARCHAR(45) NOT NULL
 );
 
 CREATE TABLE users_to_ingredients (

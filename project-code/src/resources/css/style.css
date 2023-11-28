@@ -1,6 +1,6 @@
 .title {
     font-weight: bold;
-    margin-top: 40px;
+    margin-top: 20px;
     margin-bottom: 45px;
     
 }
@@ -14,9 +14,12 @@ h1{
 
 }
 
+.container{
+    font-family: Arial, Helvetica, sans-serif;
+}
+
 body {
-    
-    background-color: rgb(248, 227, 211);
+    background-color: rgb(76, 168, 68);
 }
 
 .info {
@@ -72,6 +75,14 @@ a {
     color: #FFFDF7;
 }
 
+.hover-dark{
+    color: #000000;
+}
+
+.hover-dark:hover{
+    font-size: 110%;
+}
+
 .hover:hover{
     font-size: 110%;
 }
@@ -81,4 +92,19 @@ a {
     margin-left: 15%;
     margin-right: 15%;
     
+}
+
+.set {
+   
+    margin-right: 15%;
+    margin-left: 15%;
+}
+
+.rec{
+    margin-top: 20px;
+}
+
+.modal-wide .modal-dialog {
+    max-width: 800px;
+
 }
