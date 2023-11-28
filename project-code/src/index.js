@@ -378,9 +378,6 @@ app.post("/pantry/add", async (req, res) => {
 
 
 
-app.get('/favorites', (req, res) => {
-  res.render("pages/favorites.ejs",{session: req.session.user});
-});
 
 app.get('/settings', async (req, res) => {
   const user_id = req.session.user.user_id;
@@ -410,7 +407,18 @@ app.get('/settings', async (req, res) => {
 });
 
 app.get("/favorites", (req, res) => {
-  res.render("pages/favorites.ejs",{session: req.session.user});
+  db.any("SELECT * FROM recipes WHERE user_id = $1 AND is_starred = 1", [req.session.user.user_id])
+    .then((recipes) => {
+      res.render('pages/favorites', { recipes, session: req.session.user, user_id: req.session.user.user_id,});
+      // Render the 'favorites' page with the 'recipes' array and 'user_id'
+      console.log('User ID:', req.session.user.user_id);
+
+    })
+
+    .catch((err) => {
+      res.render('pages/favorites', { recipes:[], session: req.session.user, user_id: req.session.user.user_id, display_recipe_index: req.query.recipe_index });
+      console.log(err);
+      });
 });
 
 
