@@ -108,3 +108,14 @@ a {
     max-width: 800px;
 
 }
+
+#social-media {
+    background-color: white;
+    border-radius: 5px;
+}
+#sm-object {
+    margin-top: 40px; 
+    background-color: white;
+    border-radius: 5px;
+    margin: 30px;
+}

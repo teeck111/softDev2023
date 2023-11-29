@@ -415,7 +415,8 @@ app.get('/favorites', (req, res) => {
 
 app.get('/settings', async (req, res) => {
   const user_id = req.session.user.user_id;
-
+  let message = null;
+  message = req.query.msg; 
   try {
     const query1 = 'SELECT username FROM users WHERE user_id = $1';
     const query2 = 'SELECT d_restric FROM users WHERE user_id = $1';
@@ -432,7 +433,8 @@ app.get('/settings', async (req, res) => {
     res.render('pages/settings.ejs', {
       username: username,
       res: dietaryRestrictions,
-      session: req.session.user
+      session: req.session.user,
+      message: message 
     });
   } catch (err) {
     console.error('Error fetching data:', err);
@@ -447,54 +449,49 @@ app.get("/favorites", (req, res) => {
 
 
 
-app.post('/settings', async (req, res) =>{
-  // Check if req.body.username is valid before updating
-const newUsername = req.body.username;
-const restric = req.body.d_res; 
+app.post('/settings', async (req, res) => {
+  const newUsername = req.body.username;
+  const restric = req.body.d_res;
 
+  if ((!newUsername || newUsername.trim() === '') && (!restric || restric.trim() === '')) {
+    return res.redirect('/settings?msg=No empty usernames');
+  }
 
-if ( (!newUsername || newUsername.trim() === '') && (!restric || restric.trim() === '') ) {
-  return res.redirect('/settings'); 
-} 
+  if (newUsername.includes(' ')) {
+    return res.redirect('/settings?msg=Username cannot contain spaces');
+  } 
 
-const alterU_query = `UPDATE users SET username = '${newUsername}' WHERE user_id = ${req.session.user.user_id} RETURNING username;`;
-const alterR_query = `UPDATE users SET d_restric = '${restric}' WHERE user_id = ${req.session.user.user_id} RETURNING d_restric;`;
-
-let update = await db.task('get-everything', task => {
-    if (!newUsername && restric){
-      return task.one(alterR_query);
+  const checkQuery = "SELECT * FROM users WHERE username = $1";
+  try {
+    const check = await db.oneOrNone(checkQuery, [newUsername]);
+    if (check) {
+      return res.redirect('/settings?msg=Username already exists');
     }
-    else if (!restric && newUsername){
-      return task.one(alterU_query);
-    }
-    else {
-      return task.batch([task.one(alterR_query), task.one(alterU_query)]);
-    }
-  })
-    // if query execution succeeds
-    // query results can be obtained
-    // as shown below
-    .then(data => {
-      console.log(data); 
 
-      res.status(200);/*.json({
-        current_user: data[0],
-        city_users: data[1],
-      });*/ 
-      return res.redirect('/settings'); 
-    })
-    // if query execution fails
-    // send error message
-    .catch(err => {
-      console.log('Uh Oh spaghettio');
-      console.log(err);
-      res.status('400').json({
-        error: err,
-      });
-      res.redirect('/'); 
-    });
+    let updateQuery;
+    let queryParameters;
 
+    if (newUsername && restric) {
+      updateQuery = `UPDATE users SET username = $1, d_restric = $2 WHERE user_id = $3 RETURNING username, d_restric`;
+      queryParameters = [newUsername, restric, req.session.user.user_id];
+    } else if (newUsername) {
+      updateQuery = `UPDATE users SET username = $1 WHERE user_id = $2 RETURNING username`;
+      queryParameters = [newUsername, req.session.user.user_id];
+    } else if (restric) {
+      updateQuery = `UPDATE users SET d_restric = $1 WHERE user_id = $2 RETURNING d_restric`;
+      queryParameters = [restric, req.session.user.user_id];
+    }
+
+    const updateResult = await db.one(updateQuery, queryParameters);
+    console.log("Updated data:", updateResult);
+    
+    return res.redirect('/settings');
+  } catch (error) {
+    console.log('Error:', error);
+    return res.status(400).json({ error: error.message });
+  }
 });
+
 
 app.get("/logout", (req, res) => {
   req.session.destroy();
