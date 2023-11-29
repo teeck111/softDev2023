@@ -416,10 +416,6 @@ app.post('/pantry/search', async (req, res) => {
     });
 });
 
-app.get('/favorites', (req, res) => {
-  res.render("pages/favorites.ejs",{session: req.session.user});
-});
-
 app.post('/pantry/search', async (req, res) => {
   var search_ingredients = 
   `SELECT *
@@ -481,7 +477,7 @@ app.get('/settings', async (req, res) => {
 
 });
 
-app.get("/favorites", (req, res) => {
+app.get("/favorites", async (req, res) => {
   db.any("SELECT * FROM recipes WHERE user_id = $1 AND is_starred = 1", [req.session.user.user_id])
     .then((recipes) => {
       res.render('pages/favorites', { recipes, session: req.session.user, user_id: req.session.user.user_id,});
@@ -495,6 +491,7 @@ app.get("/favorites", (req, res) => {
       console.log(err);
       });
 });
+
 
 
 
