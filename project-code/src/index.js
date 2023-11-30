@@ -478,7 +478,7 @@ app.get('/settings', async (req, res) => {
 });
 
 app.get("/favorites", async (req, res) => {
-  db.any("SELECT * FROM recipes WHERE user_id = $1 AND is_starred = 1", [req.session.user.user_id])
+  db.any("SELECT * FROM recipes WHERE user_id = $1 AND is_starred = TRUE", [req.session.user.user_id])
     .then((recipes) => {
       res.render('pages/favorites', { recipes, session: req.session.user, user_id: req.session.user.user_id,});
       // Render the 'favorites' page with the 'recipes' array and 'user_id'

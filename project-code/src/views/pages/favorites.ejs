@@ -10,11 +10,12 @@
             <h3><%=item.recipe_name%></h3>
         </button>
       </h2>
-      <div id="collapseOne" class="accordion-collapse collapse show" data-bs-parent="#accordionExample">
+      <!-- <div id="collapseOne" class="accordion-collapse collapse show" data-bs-parent="#accordionExample"> -->
+        <div class="accordion-collapse collapse show" data-bs-parent="#accordionExample"></div>
         <div class="accordion-body">
           <strong><%=item.recipe_text%> </strong>
       </div>
     </div>
-<% }) %>
+<% }); %>
   </div>
 <%- include ('../partials/footer') %>
