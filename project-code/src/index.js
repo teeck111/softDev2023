@@ -423,7 +423,7 @@ app.post('/social/like', async (req, res) => {
                       WHERE recipe_id = $2 
                       AND user_id = $1
                     );`;
-  var updated_likes = await db.none(like_query, [req.session.user.user_id, req.body.recipe_id])
+  var updated_likes = await db.none(like_query, [req.session.user.user_id, req.body.recipe_id]);
 });
 
 app.get('/favorites', (req, res) => {
