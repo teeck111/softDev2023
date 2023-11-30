@@ -12,12 +12,22 @@
                         <tbody>
                             <tr>
                                 <td>
-                                    <form>
-                                        <div class="form-group">
-                                            <textarea class="form-control" id="dynamicTextBox" rows="15" readonly>
-                                                <%= (display_recipe_index != null && recipes.length > display_recipe_index) ? recipes[display_recipe_index].recipe_text.replaceAll('\\n', '\n') : "" %>
-                                            </textarea>
-                                        </div>
+                                    <form class="text-start">
+                                        <label for="dynamicTextBox" class="col col-form-label"><h2>
+                                            <% if (bedrockreturn) { %>
+                                                <%= bedrockreturn.recipeName %>
+                                            <% } else { %> 
+                                                Unamed
+                                            <% } %>
+                                        </h2></label>
+                                        <textarea class="form-control" id="dynamicTextBox" rows="12" readonly>   
+                                            <% if (bedrockreturn) { %>
+                                                <%= bedrockreturn.recipeDetails %>
+                                            <% } else { %> 
+                                                Your recipe will be displayed here
+                                            <% } %>
+                                            
+                                        </textarea>
                                     </form>
                                 </td>
 
@@ -33,9 +43,7 @@
                                             <div class="col">
                                                 <button type="submit" class="btn btn-outline-success" name="action" value="create">Create</button>
                                             </div>
-                                            <div class="col">
-                                                <button type="submit" class="btn btn-outline-success" name="action" value="post">Post</button>
-                                            </div>
+                                            
                                         </div>
                                         <div class="btn-group" role="group" aria-label="Basic radio toggle button group">
                                             <input type="radio" class="btn-check" name="isRestricted" id="pantry_true" autocomplete="off" checked>
@@ -58,7 +66,7 @@
                     <table class="table-success-subtle">
                         <thead>
                             <tr>
-                                 <td><h2>Past Recipes:</h2></td>
+                                 <td><h2 class="mb-3">Past Recipes:</h2></td>
                             </tr>
                         </thead>
                         <tbody>
