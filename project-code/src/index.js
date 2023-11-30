@@ -193,7 +193,7 @@ app.get("/kitchen", (req, res) => {
     .then((recipes) => {
       // Render the 'kitchen' page with the 'recipes' array and 'user_id'
       console.log('User ID:', req.session.user.user_id);
-      res.render('pages/kitchen', { recipes, session: req.session.user, user_id: req.session.user.user_id, display_recipe_index: req.query.recipe_index });
+      res.render('pages/kitchen', { recipes, session: req.session.user, user_id: req.session.user.user_id, display_recipe_index: req.query.recipe_index, bedrockreturn: null });
 
     })
     .catch((err) => {
@@ -292,12 +292,12 @@ app.post('/kitchen/create', async (req, res) => {
 
 app.put('/kitchen/update/:recipeId', async (req, res) => {
   const recipeId = req.params.recipeId;
-  const { recipeName, recipeText } = req.body;
+  const { recipeName, recipeText, isStarred } = req.body;
 
   try {
-    const updateQuery = 'UPDATE recipes SET recipe_name = $1, recipe_text = $2 WHERE recipe_id = $3 RETURNING *';
+    const updateQuery = 'UPDATE recipes SET recipe_name = $1, recipe_text = $2, is_starred = $3 WHERE recipe_id = $4 RETURNING *';
     console.log(recipeName);
-    const updatedRecipe = await db.one(updateQuery, [recipeName, recipeText, recipeId]);
+    const updatedRecipe = await db.one(updateQuery, [recipeName, recipeText, isStarred, recipeId]);
 
   } catch (error) {
     console.error('Error updating recipe:', error);
