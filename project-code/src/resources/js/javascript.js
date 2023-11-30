@@ -10,10 +10,12 @@ document.addEventListener('DOMContentLoaded', function () {
     // Get the values from the form
     var recipeName = document.getElementById('recipeName').value;
     var recipeText = document.getElementById('recipeText').value;
+    var isStarred = document.getElementById('favoriteRecipe').checked;
   
     const requestData = {
       recipeName: recipeName,
       recipeText: recipeText,
+      isStarred: isStarred,
     };
 
     console.log(recipeName);
@@ -39,8 +41,6 @@ document.addEventListener('DOMContentLoaded', function () {
           console.error('Error updating recipe:', error);
         });
     
-    var modalId = 'recipeModal' + recipeId;
-    var recipeModal = new bootstrap.Modal(document.getElementById(modalId));
     recipeModal.hide();
   }
 

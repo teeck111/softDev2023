@@ -193,7 +193,7 @@ app.get("/kitchen", (req, res) => {
     .then((recipes) => {
       // Render the 'kitchen' page with the 'recipes' array and 'user_id'
       console.log('User ID:', req.session.user.user_id);
-      res.render('pages/kitchen', { recipes, session: req.session.user, user_id: req.session.user.user_id, display_recipe_index: req.query.recipe_index });
+      res.render('pages/kitchen', { recipes, session: req.session.user, user_id: req.session.user.user_id, display_recipe_index: req.query.recipe_index, bedrockreturn: null });
 
     })
     .catch((err) => {
@@ -292,12 +292,12 @@ app.post('/kitchen/create', async (req, res) => {
 
 app.put('/kitchen/update/:recipeId', async (req, res) => {
   const recipeId = req.params.recipeId;
-  const { recipeName, recipeText } = req.body;
+  const { recipeName, recipeText, isStarred } = req.body;
 
   try {
-    const updateQuery = 'UPDATE recipes SET recipe_name = $1, recipe_text = $2 WHERE recipe_id = $3 RETURNING *';
+    const updateQuery = 'UPDATE recipes SET recipe_name = $1, recipe_text = $2, is_starred = $3 WHERE recipe_id = $4 RETURNING *';
     console.log(recipeName);
-    const updatedRecipe = await db.one(updateQuery, [recipeName, recipeText, recipeId]);
+    const updatedRecipe = await db.one(updateQuery, [recipeName, recipeText, isStarred, recipeId]);
 
   } catch (error) {
     console.error('Error updating recipe:', error);
@@ -378,6 +378,7 @@ app.post("/pantry/add", async (req, res) => {
                         ($1, $2);`;
   var updated_ingredients = await db.none(add_query, [req.session.user.user_id, req.body.ingredient_id]);
   return res.redirect("/pantry");
+
 });
 
 app.post('/pantry/search', async (req, res) => {
@@ -415,9 +416,38 @@ app.post('/pantry/search', async (req, res) => {
     });
 });
 
-app.get('/favorites', (req, res) => {
-  res.render("pages/favorites.ejs",{session: req.session.user});
+app.post('/pantry/search', async (req, res) => {
+  var search_ingredients = 
+  `SELECT *
+  FROM ingredients i
+  WHERE NOT EXISTS (
+    SELECT 1
+    FROM users_to_ingredients u_to_i
+    WHERE u_to_i.ingredient_id = i.ingredient_id
+    AND u_to_i.user_id = $1
+  )
+  AND LOWER(i.ingredient_text) LIKE LOWER('${req.body.search_val}%')
+  ORDER BY i.ingredient_text ASC;`;
+  var unused_ingredients = await db.any(search_ingredients, [req.session.user.user_id]);
+  db.any(all_user_ingredients, [req.session.user.user_id])
+    .then((ingredients) => {
+      res.render("pages/pantry.ejs", {
+        ingredients,
+        unused_ingredients,
+        session: req.session.user
+      });
+    })
+    .catch((err) => {
+      res.render("pages/pantry.ejs", {
+        ingredients: [],
+        unused_ingredients: [],
+        error: true,
+        message: err.message,
+        session: req.session.user
+      });
+    });
 });
+
 
 app.get('/settings', async (req, res) => {
   const user_id = req.session.user.user_id;
@@ -447,9 +477,21 @@ app.get('/settings', async (req, res) => {
 
 });
 
-app.get("/favorites", (req, res) => {
-  res.render("pages/favorites.ejs",{session: req.session.user});
+app.get("/favorites", async (req, res) => {
+  db.any("SELECT * FROM recipes WHERE user_id = $1 AND is_starred = TRUE", [req.session.user.user_id])
+    .then((recipes) => {
+      res.render('pages/favorites', { recipes, session: req.session.user, user_id: req.session.user.user_id,});
+      // Render the 'favorites' page with the 'recipes' array and 'user_id'
+      console.log('User ID:', req.session.user.user_id);
+
+    })
+
+    .catch((err) => {
+      res.render('pages/favorites', { recipes:[], session: req.session.user, user_id: req.session.user.user_id, display_recipe_index: req.query.recipe_index });
+      console.log(err);
+      });
 });
+
 
 
 
