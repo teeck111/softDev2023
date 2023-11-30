@@ -20,6 +20,11 @@ CREATE TABLE recipes (
             REFERENCES users(user_id)
 );
 
+CREATE TABLE recipe_likes (
+    recipe_id INT,
+    user_id INT
+);
+
 CREATE TABLE ingredients (
     ingredient_id SERIAL PRIMARY KEY,
     ingredient_text VARCHAR(45) NOT NULL

@@ -415,6 +415,17 @@ app.post('/pantry/search', async (req, res) => {
     });
 });
 
+app.post('/social/like', async (req, res) => {
+  var like_query = `INSERT INTO recipe_likes (recipe_id, user_id)
+                    VALUES ($2, $1)
+                    WHERE NOT EXISTS (
+                      SELECT 1 FROM recipe_likes
+                      WHERE recipe_id = $2 
+                      AND user_id = $1
+                    );`;
+  var updated_likes = await db.none(like_query, [req.session.user.user_id, req.body.recipe_id])
+});
+
 app.get('/favorites', (req, res) => {
   res.render("pages/favorites.ejs",{session: req.session.user});
 });
