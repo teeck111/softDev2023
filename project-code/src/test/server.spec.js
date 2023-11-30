@@ -75,3 +75,5 @@ describe('/register', () => {
         });
     });
 });
+
+module.exports = server;
