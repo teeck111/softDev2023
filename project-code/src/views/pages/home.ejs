@@ -32,11 +32,12 @@
             <a href="register">Sign Up</a>
         </button>
     </div>
-
+    <% if (session) { %>
+        <% creations.forEach(function(post){  %>
     <div id="social-media">
         <div class="text-center" id="sm-object">
             <div class="text-start" id="title">
-                <h2> Recipe Name(link to modal) - User Name</h2>  
+                <h2> <a>Recipe Name</a> - User Name</h2>  
             </div>
             <hr>
             <div id="info">
@@ -45,7 +46,9 @@
                 </p>
             </div>
         </div>
-    </div>
+    </div> 
+    <% } ); 
+    }; %>
 </div>
 
 <%- include ('../partials/footer') %>

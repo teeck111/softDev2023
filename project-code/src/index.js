@@ -63,7 +63,8 @@ app.use(
 app.get("/", (req, res) => {
   console.log(req.session.user);
   console.log(req.session); 
-    res.render("pages/home.ejs",{session: req.session.user});
+    res.render("pages/home.ejs",
+      {session: req.session.user});
 });
 
 app.get("/login", (req, res) => {
