@@ -427,13 +427,16 @@ app.post('/kitchen/create', async (req, res) => {
   const isRestricted = restrictionChoice === 'pantry_true';
   let query;
 
+  const dietaryRestrictions = await db.any(' SELECT users.d_restric FROM users WHERE users.user_id = $1 ', [user_id]);
+  
   // if isRestricted then use the ingredients
   if(isRestricted === true)
   {
     try{
     const ingredients = await db.any('SELECT ingredients.ingredient_text FROM ingredients INNER JOIN users_to_ingredients ON ingredients.ingredient_id = users_to_ingredients.ingredient_id WHERE users_to_ingredients.user_id = $1', [user_id])
     query = `\n\nHuman: 
-    Generate a recipe that aligns with the user's input and ingredient preferences. User's input: "${prompt}". The recipe should only utilize ingredients from this list: ${ingredients}.
+    Generate a recipe that aligns with the user's input and ingredient preferences. User's input: "${prompt}". The recipe must only utilize ingredients from this list: ${ingredients}.
+    The recipe should also comply with the following dietary restrictions: ${dietaryRestrictions}.
     Output should include only the recipe instructions and ingredients. Don't add an introductory statement like " Here is a vegan pasta recipe:"
     \n\nAssistant:
     `;
@@ -446,6 +449,7 @@ app.post('/kitchen/create', async (req, res) => {
     query = `\n\nHuman: 
     Generate a recipe based on the user's input: "${prompt}".
     Output should include only the recipe instructions and ingredients. Don't add an introductory statement like " Here is a vegan pasta recipe:"
+    The recipe should also comply with the following dietary restrictions: ${dietaryRestrictions}.
 
     \n\nAssistant:
     `
@@ -453,7 +457,7 @@ app.post('/kitchen/create', async (req, res) => {
 
   try {
     const params = {
-      modelId: "anthropic.claude-instant-v1",
+      modelId: "anthropic.claude-v2",
       contentType: "application/json",
       accept: "application/json",
       body: JSON.stringify({
@@ -477,12 +481,14 @@ app.post('/kitchen/create', async (req, res) => {
   const responseString = buffer.toString('utf-8');
   const responseJSON = JSON.parse(responseString);
   const recipe_text = responseJSON.completion;
-
+  console.log("RECIPE TEXT!!!!!!!");
+  console.log(recipe_text);
   // TODO console log the result to determine how to access specific data in JSON the below text and name may be collected incorectly
   
 
   const query1 = `\n\nHuman: 
   Generate a recipe name based on this recipe: "${recipe_text}".
+  Only response with a recipe name. Don't add an introductory statement like "Here is a generated recipe name based on the ingredients and instructions:"
   \n\nAssistant:
   `
   // give the recipe a name
@@ -521,7 +527,8 @@ app.post('/kitchen/create', async (req, res) => {
   console.log("BEDROCK RETURN!!!!!!!");
   console.log(bedrockReturn);
   // Render the kitchen page with the Bedrock API response data
-  res.render("pages/kitchen", { bedrockreturn: bedrockreturn });
+  const recipes = await db.any("SELECT * FROM recipes WHERE user_id = $1", [user_id])
+  res.render("pages/kitchen", { recipes, bedrockreturn: bedrockreturn, session: req.session.user, user_id: user_id});
   return;
   } catch (error) {
       console.error('Error creating recipe:', error);
