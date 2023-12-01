@@ -5,6 +5,7 @@
     <div class="rec home-color">
         <h7>12,438 recipes generated</h7>
     </div>
+    
     <div class="title home-color mx-auto text-center">
     
         <h1>GENERATE A RECIPE PERFECTLY CATERED TO YOU</h1>
@@ -12,6 +13,7 @@
     <div>
         <img src="resources/imgs/home_img.jpg"  alt="Image of food and ingredients" class="rounded img-fluid"></img> 
     </div>
+
     <div class="home-color info">
         <h3>A little more about what we can do for you</h3>
         
@@ -24,11 +26,29 @@
         <a class="hover" href="settings">Settings</a> to put
         in preferences and dietary restrictions.</p>
     </div>
+
     <div class="center">
         <button type="button" class="reg btn btn-lg" style="--bs-btn-padding-y: .8rem; --bs-btn-padding-x: 2rem; --bs-btn-font-size: 2.6rem;" >
             <a href="register">Sign Up</a>
         </button>
     </div>
+    <% if (session) { %>
+        <% creations.forEach(function(post){  %>
+    <div id="social-media">
+        <div class="text-center" id="sm-object">
+            <div class="text-start" id="title">
+                <h2> <a>Recipe Name</a> - User Name</h2>  
+            </div>
+            <hr>
+            <div id="info">
+                <p>
+                    Recipe
+                </p>
+            </div>
+        </div>
+    </div> 
+    <% } ); 
+    }; %>
 </div>
 
 <%- include ('../partials/footer') %>
