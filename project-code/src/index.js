@@ -213,81 +213,7 @@ app.get("/kitchen", (req, res) => {
 //Promting claude withe user promt and ingredients(if specified)
 //Updating the kitchen page with the generated recipe
 
-app.post('/kitchen/create', async (req, res) => {
-  const prompt = req.body.prompt; 
-  const user_id = req.session.user.user_id; 
-  // TODO: Figure out how to get if it's started
-  const is_starred = false;
-  const restrictionChoice = req.body.isRestricted;
-  const isRestricted = restrictionChoice === 'pantry_true';
-  let query;
 
-  // if isRestricted then use the ingredients
-  if(isRestricted === true)
-  {
-    try{
-    const ingredients = await db.any('SELECT ingredients.ingredient_text FROM ingredients INNER JOIN users_to_ingredients ON ingredients.ingredient_id = users_to_ingredients.ingredient_id WHERE users_to_ingredients.user_id = $1', [user_id])
-    query = `
-    Generate a recipe that aligns with the user's input and ingredient preferences. User's input: "${prompt}". The recipe should only utilize ingredients from this list: ${ingredients}. Format the output as JSON, structured with keys for the recipe name and the recipe details, as shown below:
-    
-    {
-      "recipeName": "<Name of the Recipe>",
-      "recipeDetails": "<Detailed Recipe Instructions>"
-    }
-    `;
-    } catch(error){
-      console.error("Error:", error);
-      return res.status(407).json({ message: "Error querying ingredients", error: error });
-    };
-  }else{
-    // restricted is not selected so we won't need to use ingredients
-    query = `
-    Generate a recipe based on the user's input: "${prompt}".
-    Output should be in JSON format, containing keys for both the recipe name and the recipe details. Structure the response as follows:
-    
-    {
-      "recipeName": "<Name of the Recipe>",
-      "recipeDetails": "<Detailed Recipe Instructions>"
-    }
-    `
-  }
-
-  try {
-    const params = {
-      accept: 'application/json',
-      body: JSON.stringify({
-        prompt: query
-      }),
-      contentType: 'application/json',
-      modelId: 'anthropic.claude-instant-v1', // could be replaced with claude v2, we'll see what works best :)
-    };
-
-  const bedrockResult = await bedrock.invokeModel(params).promise();
-
-  // TODO console log the result to determine how to access specific data in JSON the below text and name may be collected incorectly
-  const recipe_text = bedrockResult.recipeDetails;
-  const recipe_name = bedrockResult.recipeName;
-
-  // Insert the new recipe into the recipes table
-  const newRecipe = await db.one('INSERT INTO recipes (recipe_text, recipe_name, user_id, is_starred) VALUES ($1, $2, $3, $4) RETURNING *', [recipe_text, recipe_name, user_id, is_starred]);
-  
-  const bedrockreturn = {
-    recipeName: recipe_name,
-    recipeDetails: recipe_text
-  };
-
-  // Render the kitchen page with the Bedrock API response data
-  res.render("pages/kitchen", { bedrockreturn: bedrockreturn });
-    return;
-  } catch (error) {
-      console.error('Error creating recipe:', error);
-      res.status(408).json({
-          success: false,
-          message: 'Error creating recipe',
-          error: error.message,
-      });
-  }
-});
 
 
 app.put('/kitchen/update/:recipeId', async (req, res) => {
@@ -492,7 +418,120 @@ app.get("/favorites", async (req, res) => {
       });
 });
 
+app.post('/kitchen/create', async (req, res) => {
+  const prompt = req.body.prompt; 
+  const user_id = req.session.user.user_id; 
+  // TODO: Figure out how to get if it's started
+  const is_starred = false;
+  const restrictionChoice = req.body.isRestricted;
+  const isRestricted = restrictionChoice === 'pantry_true';
+  let query;
 
+  // if isRestricted then use the ingredients
+  if(isRestricted === true)
+  {
+    try{
+    const ingredients = await db.any('SELECT ingredients.ingredient_text FROM ingredients INNER JOIN users_to_ingredients ON ingredients.ingredient_id = users_to_ingredients.ingredient_id WHERE users_to_ingredients.user_id = $1', [user_id])
+    query = `\n\nHuman: 
+    Generate a recipe that aligns with the user's input and ingredient preferences. User's input: "${prompt}". The recipe should only utilize ingredients from this list: ${ingredients}.
+    Output should include only the recipe instructions and ingredients. Don't add an introductory statement like " Here is a vegan pasta recipe:"
+    \n\nAssistant:
+    `;
+    } catch(error){
+      console.error("Error:", error);
+      return res.status(407).json({ message: "Error querying ingredients", error: error });
+    };
+  }else{
+    // restricted is not selected so we won't need to use ingredients
+    query = `\n\nHuman: 
+    Generate a recipe based on the user's input: "${prompt}".
+    Output should include only the recipe instructions and ingredients. Don't add an introductory statement like " Here is a vegan pasta recipe:"
+
+    \n\nAssistant:
+    `
+  }
+
+  try {
+    const params = {
+      modelId: "anthropic.claude-instant-v1",
+      contentType: "application/json",
+      accept: "application/json",
+      body: JSON.stringify({
+        prompt: query,
+        max_tokens_to_sample: 4000,
+        temperature: 0.5,
+        top_k: 250,
+        top_p: 1,
+        stop_sequences: [
+          "\n\nHuman:"
+        ],
+        anthropic_version: "bedrock-2023-05-31"
+      })
+    };
+
+  const bedrockReturn = await bedrock.invokeModel(params).promise();
+  
+  const buffer = Buffer.from(bedrockReturn.body);
+
+    // Convert the buffer to a string
+  const responseString = buffer.toString('utf-8');
+  const responseJSON = JSON.parse(responseString);
+  const recipe_text = responseJSON.completion;
+
+  // TODO console log the result to determine how to access specific data in JSON the below text and name may be collected incorectly
+  
+
+  const query1 = `\n\nHuman: 
+  Generate a recipe name based on this recipe: "${recipe_text}".
+  \n\nAssistant:
+  `
+  // give the recipe a name
+  const nameParams = {
+    modelId: "anthropic.claude-instant-v1",
+    contentType: "application/json",
+    accept: "application/json",
+    body: JSON.stringify({
+      prompt: query1,
+      max_tokens_to_sample: 1000,
+      temperature: 0.5,
+      top_k: 250,
+      top_p: 1,
+      stop_sequences: [
+        "\n\nHuman:"
+      ],
+      anthropic_version: "bedrock-2023-05-31"
+    })
+  };
+
+  const bedrockReturn1 = await bedrock.invokeModel(nameParams).promise();
+  const buffer1 = Buffer.from(bedrockReturn1.body);
+
+  // Convert the buffer to a string
+  const responseString1 = buffer1.toString('utf-8');
+  const responseJSON1 = JSON.parse(responseString1);
+  const recipe_name = responseJSON1.completion;
+
+  // Insert the new recipe into the recipes table
+  await db.one('INSERT INTO recipes (recipe_text, recipe_name, user_id, is_starred) VALUES ($1, $2, $3, $4) RETURNING *', [recipe_text, recipe_name, user_id, is_starred]);
+  
+  const bedrockreturn = {
+    recipeName: recipe_name,
+    recipeDetails: recipe_text
+  };
+  console.log("BEDROCK RETURN!!!!!!!");
+  console.log(bedrockReturn);
+  // Render the kitchen page with the Bedrock API response data
+  res.render("pages/kitchen", { bedrockreturn: bedrockreturn });
+  return;
+  } catch (error) {
+      console.error('Error creating recipe:', error);
+      res.status(408).json({
+          success: false,
+          message: 'Error creating recipe',
+          error: error.message,
+      });
+  }
+});
 
 
 app.post('/settings', async (req, res) =>{
