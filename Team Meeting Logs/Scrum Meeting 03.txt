@@ -1,0 +1,27 @@
+Scrum Meeting 3 | 11.28.23 :
+
+    General Notes:
+      - Going over everyones progress from the last meeting
+      - Identifying some bugs that need to be ironed out
+      - Discussing how we would like the social media aspect to look
+      - Need to focus on the social media aspect
+
+    i. Decisions made
+      - Comments section can be handled by different parties than Tyler and Alex
+      - Must have all the functionality done by this week
+      - Next week we will be working on bugs and finishing touches of the UI
+
+    ii. Alternative actions/options discussed
+      - We discussed whether or not some functionalities are absolutely necessary to our project being
+      done correctly
+      - Do we need the comments, or would just the liking function work for the social media aspect of the
+      website
+
+    iii. Follow-up items, including agreed-on roles and responsibilities
+      - Team Responsibilities:
+        1. Tyler: Social Media
+        2. Grayson: Comments Functionality
+        3. Johnny: Website Consistency / bugs
+        4. Alex: Social Media
+        5. Suhana: Comments functionality
+        6. Aniket: Favorites Page 

@@ -9,6 +9,8 @@ chai.should();
 chai.use(chaiHttp);
 const {assert, expect} = chai;
 
+module.exports = server;
+
 describe('Server!', () => {
   // Sample test case given to test / endpoint.
   it('Returns the default welcome message', done => {
