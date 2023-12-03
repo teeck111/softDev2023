@@ -427,8 +427,9 @@ app.post('/kitchen/create', async (req, res) => {
   // TODO: Figure out how to get if it's started
   const is_starred = false;
   const restrictionChoice = req.body.isRestricted;
-  const restricted = restrictionChoice === 'unrestricted';
-  
+  const restricted = restrictionChoice === 'restricted';
+  console.log("restricted = " + restricted);
+  console.log("restrictionChoice"+restrictionChoice);
   let query;
   
   const dietaryRestrictions = await db.any(' SELECT users.d_restric FROM users WHERE users.user_id = $1 ', [user_id]);
@@ -436,6 +437,7 @@ app.post('/kitchen/create', async (req, res) => {
   // if isRestricted then use the ingredients
   if(restricted === true)
   {
+    console.log("its restricrted");
     try{
     const ingredients = await db.any('SELECT ingredients.ingredient_text FROM ingredients INNER JOIN users_to_ingredients ON ingredients.ingredient_id = users_to_ingredients.ingredient_id WHERE users_to_ingredients.user_id = $1', [user_id])
     query = `\n\nHuman: 
