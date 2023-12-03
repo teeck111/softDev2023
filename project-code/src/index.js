@@ -427,22 +427,25 @@ app.post('/kitchen/create', async (req, res) => {
   // TODO: Figure out how to get if it's started
   const is_starred = false;
   const restrictionChoice = req.body.isRestricted;
-  const isRestricted = restrictionChoice === 'pantry_true';
+  const restricted = restrictionChoice === 'unrestricted';
+  
   let query;
-
+  
   const dietaryRestrictions = await db.any(' SELECT users.d_restric FROM users WHERE users.user_id = $1 ', [user_id]);
   
   // if isRestricted then use the ingredients
-  if(isRestricted === true)
+  if(restricted === true)
   {
     try{
     const ingredients = await db.any('SELECT ingredients.ingredient_text FROM ingredients INNER JOIN users_to_ingredients ON ingredients.ingredient_id = users_to_ingredients.ingredient_id WHERE users_to_ingredients.user_id = $1', [user_id])
     query = `\n\nHuman: 
-    Generate a recipe that aligns with the user's input and ingredient preferences. User's input: "${prompt}". The recipe must only utilize ingredients from this list: ${ingredients}.
-    The recipe should also comply with the following dietary restrictions: ${dietaryRestrictions}.
+    Generate a recipe that aligns with the user's input and ingredient preferences. User's input: "${prompt}". 
+    The recipe must only utilize ingredients from the following list. Do not return a recipe that uses ingredients that are not present in the list. If there are not enough ingredients in the list then return "Not enough ingredients". Ingredient list: ${ingredients}.
+    The recipe must also comply with the following dietary restrictions: ${dietaryRestrictions}.
     Output should include only the recipe instructions and ingredients. Don't add an introductory statement like " Here is a vegan pasta recipe:"
     \n\nAssistant:
     `;
+
     } catch(error){
       console.error("Error:", error);
       return res.status(407).json({ message: "Error querying ingredients", error: error });
@@ -451,7 +454,7 @@ app.post('/kitchen/create', async (req, res) => {
     // restricted is not selected so we won't need to use ingredients
     query = `\n\nHuman: 
     Generate a recipe based on the user's input: "${prompt}".
-    Output should include only the recipe instructions and ingredients. Don't add an introductory statement like " Here is a vegan pasta recipe:"
+    Output must include only the recipe instructions and ingredients. Don't add an introductory statement like " Here is a vegan pasta recipe:"
     The recipe should also comply with the following dietary restrictions: ${dietaryRestrictions}.
 
     \n\nAssistant:
@@ -484,8 +487,7 @@ app.post('/kitchen/create', async (req, res) => {
   const responseString = buffer.toString('utf-8');
   const responseJSON = JSON.parse(responseString);
   const recipe_text = responseJSON.completion;
-  console.log("RECIPE TEXT!!!!!!!");
-  console.log(recipe_text);
+
   // TODO console log the result to determine how to access specific data in JSON the below text and name may be collected incorectly
   
 
@@ -527,8 +529,7 @@ app.post('/kitchen/create', async (req, res) => {
     recipeName: recipe_name,
     recipeDetails: recipe_text
   };
-  console.log("BEDROCK RETURN!!!!!!!");
-  console.log(bedrockReturn);
+
   // Render the kitchen page with the Bedrock API response data
   const recipes = await db.any("SELECT * FROM recipes WHERE user_id = $1", [user_id])
   res.render("pages/kitchen", { recipes, bedrockreturn: bedrockreturn, session: req.session.user, user_id: user_id});
