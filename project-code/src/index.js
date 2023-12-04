@@ -428,21 +428,18 @@ app.post('/kitchen/create', async (req, res) => {
   const is_starred = false;
   const restrictionChoice = req.body.isRestricted;
   const restricted = restrictionChoice === 'restricted';
-  console.log("restricted = " + restricted);
-  console.log("restrictionChoice"+restrictionChoice);
   let query;
   
   const dietaryRestrictions = await db.one(' SELECT users.d_restric FROM users WHERE users.user_id = $1 ', [user_id]);
-  console.log("diet ====== " + dietaryRestrictions.d_restric);
   // if isRestricted then use the ingredients 
   if(restricted === true)
   {
-    console.log("its restricrted");
     try{
     const ingredients = await db.any('SELECT ingredients.ingredient_text FROM ingredients INNER JOIN users_to_ingredients ON ingredients.ingredient_id = users_to_ingredients.ingredient_id WHERE users_to_ingredients.user_id = $1', [user_id])
     query = `\n\nHuman: 
     Generate a recipe that aligns with the user's input and ingredient preferences. User's input: "${prompt}". 
-    The recipe must only utilize ingredients from the following list. Do not return a recipe that uses ingredients that are not present in the list. If there are not enough ingredients in the list then return "Not enough ingredients". Ingredient list: ${ingredients}.
+    The recipe must only utilize ingredients from the following list. Do not return a recipe that uses ingredients that are not present in the list.
+    If there are not enough ingredients in the list then return "Not enough ingredients". Ingredient list: ${ingredients}.
     The recipe must also comply with the following dietary restrictions: ${dietaryRestrictions.d_restric}.
     Output should include only the recipe instructions and ingredients. Don't add an introductory statement like " Here is a pasta recipe:"
     \n\nAssistant:
@@ -457,12 +454,11 @@ app.post('/kitchen/create', async (req, res) => {
     query = `\n\nHuman: 
     Generate a recipe based on the user's input: "${prompt}".
     Output must include only the recipe instructions and ingredients. Don't add an introductory statement like " Here is a pasta recipe:"
-    The recipe should also comply with the following dietary restrictions: ${dietaryRestrictions.d_restric}.
+    The recipe must also comply with the following dietary restrictions: ${dietaryRestrictions.d_restric}.
 
     \n\nAssistant:
     `
   }
-  console.log("query = " + query);
   try {
     const params = {
       modelId: "anthropic.claude-v2",
@@ -583,10 +579,6 @@ app.post('/settings', async (req, res) => {
     }
     
     const updateResult = await db.one(updateQuery, queryParameters);
-    console.log("Updated data:", updateResult);
-    
-    console.log("username: ", updateResult.username)
-    console.log("dieteryrestictions:", updateResult.d_restric)
     
     res.render('pages/settings.ejs', {
       currentUsername: updateResult.username || newUsername || currentUsername,

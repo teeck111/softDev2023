@@ -17,7 +17,7 @@
                                             <% if (bedrockreturn) { %>
                                                 <%= bedrockreturn.recipeName %>
                                             <% } else { %> 
-                                                Unamed
+
                                             <% } %>
                                         </h2></label>
                                         <textarea class="form-control" id="dynamicTextBox" rows="12" readonly>
@@ -47,16 +47,15 @@
                                             <div class="col">
                                                 <button type="submit" class="btn btn-outline-success" name="action" value="create">Create</button>
                                             </div>
-                                            
                                         </div>
 
                                         
                                         <div class="btn-group" role="group" aria-label="Basic radio toggle button group">
                                             <input type="radio" class="btn-check" name="isRestricted" id="pantry_true" value="restricted" autocomplete="off" checked>
-                                            <label class="btn btn-outline-success" for="pantry_true">Restricted</label>
+                                            <label class="btn btn-outline-success" for="pantry_true">Pantry</label>
 
                                             <input type="radio" class="btn-check" name="isRestricted" id="pantry_false" value="unrestricted" autocomplete="off">
-                                            <label class="btn btn-outline-success" for="pantry_false">Un-restricted</label>
+                                            <label class="btn btn-outline-success" for="pantry_false">No-Pantry</label>
 
                                         </div>
                                     </form>
@@ -112,7 +111,7 @@
                                                 </div>
                                                 <div class="modal-footer">
                                                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" aria-label="Close">Close</button>
-                                                  <button type="button" class="btn btn-primary" onclick="saveRecipeChanges(<%= recipe.recipe_id %>)">Save Changes</button>
+                                                  <button type="button" class="btn btn-primary" data-bs-dismiss="modal" aria-label="saveChanges" onclick="saveRecipeChanges(<%= recipe.recipe_id %>)">Save Changes</button>
                                                   <button type="button" class="btn btn-primary" formaction="/kitchen/post">Post</button>
                                                 </div>
                                               </div>
@@ -135,8 +134,10 @@
     // loading button
     document.addEventListener('DOMContentLoaded', function() {
         document.getElementById('KitchenForm').addEventListener('submit', function() {
-        document.getElementById('dynamicTextBox').style.display = 'none'; 
-        document.getElementById('loadingSpinner').style.display = 'block';
+            document.getElementById('dynamicTextBox').style.display = 'none'; 
+            document.getElementById('loadingSpinner').style.display = 'block';
+            document.getElementById('pantry_false').style.display = 'none';
+            document.getElementById("pantry_true").style.display = "none"; 
         });
     });
 </script>
