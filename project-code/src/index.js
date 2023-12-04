@@ -262,6 +262,23 @@ app.put('/kitchen/update/:recipeId', async (req, res) => {
   }
 });
 
+app.post('/kitchen/delete/:recipeId', async (req, res) => {
+  const recipeId = req.params.recipeId;
+  console.log('Kitchen Delete');
+  console.log('Recipe ID', recipeId);
+
+  try {
+    deleteQuery = `DELETE FROM recipes WHERE recipe_id = $1`;
+    await db.none(deleteQuery, [recipeId]);
+    res.redirect('/kitchen');
+
+  } catch (error) {
+    console.error('Error deleting recipe:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+
 app.get('/welcome', (req, res) => {
   res.json({status: 'success', message: 'Welcome!'});
 });
