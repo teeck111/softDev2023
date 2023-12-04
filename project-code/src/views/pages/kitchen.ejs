@@ -77,13 +77,22 @@
                         </thead>
                         <tbody>
                                 <% if (recipes && recipes.length > 0) { %> 
-                                    <% recipes.slice(0,10).forEach(function(recipe, r_index) { %> 
+                                    <% recipes.slice(0,15).reverse().forEach(function(recipe, r_index) { %> 
                                         <tr> 
-                                            <td class="row"> 
-                                                <a class="hover-dark" data-bs-toggle="modal" data-bs-target="#recipeModal<%= recipe.recipe_id %>" id="recipeLink<%= recipe.recipe_id %>">
-                                                    <%= recipe.recipe_name %>
-                                                </a>
-                                                 
+                                            <td class="row">
+                                                <div class="col-5">
+                                                    <a class="hover-dark" data-bs-toggle="modal" data-bs-target="#recipeModal<%= recipe.recipe_id %>" id="recipeLink<%= recipe.recipe_id %>">
+                                                        <%= recipe.recipe_name %>
+                                                    </a>
+                                                </div> 
+                                                <div class="col-4">
+                                                    <form action="/kitchen/delete/<%= recipe.recipe_id %>" method="post">
+                                                        <button type="submit" class="btn btn-outline-danger" style="--bs-btn-padding-y: .25rem; --bs-btn-padding-x: .5rem; --bs-btn-font-size: .75rem;">
+                                                            Delete
+                                                        </button>
+                                                    </form>                                                    
+
+                                                </div>
                                             <td> 
                                         </tr>        
                                         <div class="modal fade modal-wide" id="recipeModal<%= recipe.recipe_id %>" tabindex="-1" aria-labelledby="recipeModalLabel" aria-hidden="true">

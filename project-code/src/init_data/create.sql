@@ -49,4 +49,5 @@ CREATE TABLE users_to_likes (
     CONSTRAINT fk_recipe_id
         FOREIGN KEY (recipe_id)
             REFERENCES recipes(recipe_id)
+        ON DELETE CASCADE
 );
