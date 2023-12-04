@@ -20,14 +20,18 @@
                                                 Unamed
                                             <% } %>
                                         </h2></label>
-                                        <textarea class="form-control" id="dynamicTextBox" rows="12" readonly>   
+                                        <textarea class="form-control" id="dynamicTextBox" rows="12" readonly>
                                             <% if (bedrockreturn) { %>
                                                 <%= bedrockreturn.recipeDetails %>
                                             <% } else { %> 
                                                 Your recipe will be displayed here
                                             <% } %>
-                                            
                                         </textarea>
+                                        <center>
+                                            <div id="loadingSpinner" style="display: none;">
+                                                <img src="../../resources/imgs/foodLoading.gif" alt="Loading...">
+                                            </div>
+                                        </center>
                                     </form>
                                 </td>
 
@@ -127,5 +131,13 @@
         </div>
     </div>
   </main>
-
+  <script>
+    // loading button
+    document.addEventListener('DOMContentLoaded', function() {
+        document.getElementById('KitchenForm').addEventListener('submit', function() {
+        document.getElementById('dynamicTextBox').style.display = 'none'; 
+        document.getElementById('loadingSpinner').style.display = 'block';
+        });
+    });
+</script>
 <%- include ('../partials/footer') %>
