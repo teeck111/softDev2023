@@ -17,17 +17,21 @@
                                             <% if (bedrockreturn) { %>
                                                 <%= bedrockreturn.recipeName %>
                                             <% } else { %> 
-                                                Unamed
+
                                             <% } %>
                                         </h2></label>
-                                        <textarea class="form-control" id="dynamicTextBox" rows="12" readonly>   
+                                        <textarea class="form-control" id="dynamicTextBox" rows="12" readonly>
                                             <% if (bedrockreturn) { %>
                                                 <%= bedrockreturn.recipeDetails %>
                                             <% } else { %> 
                                                 Your recipe will be displayed here
                                             <% } %>
-                                            
                                         </textarea>
+                                        <center>
+                                            <div id="loadingSpinner" style="display: none;">
+                                                <img src="../../resources/imgs/foodLoading.gif" alt="Loading...">
+                                            </div>
+                                        </center>
                                     </form>
                                 </td>
 
@@ -43,16 +47,15 @@
                                             <div class="col">
                                                 <button type="submit" class="btn btn-outline-success" name="action" value="create">Create</button>
                                             </div>
-                                            
                                         </div>
 
                                         
                                         <div class="btn-group" role="group" aria-label="Basic radio toggle button group">
                                             <input type="radio" class="btn-check" name="isRestricted" id="pantry_true" value="restricted" autocomplete="off" checked>
-                                            <label class="btn btn-outline-success" for="pantry_true">Restricted</label>
+                                            <label class="btn btn-outline-success" for="pantry_true">Pantry</label>
 
                                             <input type="radio" class="btn-check" name="isRestricted" id="pantry_false" value="unrestricted" autocomplete="off">
-                                            <label class="btn btn-outline-success" for="pantry_false">Un-restricted</label>
+                                            <label class="btn btn-outline-success" for="pantry_false">No-Pantry</label>
 
                                         </div>
                                     </form>
@@ -106,10 +109,10 @@
                                                         </div>
                                                         <div class="modal-footer">
                                                             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                                                            <button type="submit" class="btn btn-primary">Save Changes</button>
+                                                            <button type="submit" class="btn btn-primary" data-bs-dismiss="modal">Save Changes</button>
                                                             <button type="button" class="btn btn-primary" formaction="/kitchen/post">Post</button>
                                                         </div>
-                                                    </form>
+                                                    </form>                         
                                                 </div>
                                               </div>
                                             </div>
@@ -127,7 +130,16 @@
         </div>
     </div>
   </main>
-<script>
+  <script>
+    // loading button
+    document.addEventListener('DOMContentLoaded', function() {
+        document.getElementById('KitchenForm').addEventListener('submit', function() {
+            document.getElementById('dynamicTextBox').style.display = 'none'; 
+            document.getElementById('loadingSpinner').style.display = 'block';
+            document.getElementById('pantry_false').style.display = 'none';
+            document.getElementById("pantry_true").style.display = "none"; 
+        });
+    });
     // makes sure the recipe name is updated without needing to reload page!
     function saveRecipeChanges(recipeId) {
         var updatedName = document.getElementById('recipeName').value;
@@ -135,6 +147,5 @@
             document.getElementById('recipeLink' + recipeId).innerText = updatedName;
         }
     }
-
 </script>
 <%- include ('../partials/footer') %>

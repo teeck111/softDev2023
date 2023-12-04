@@ -60,11 +60,43 @@ app.use(
   })
 );
 
-app.get("/", (req, res) => {
-  console.log(req.session.user);
-  console.log(req.session); 
-    res.render("pages/home.ejs",
-      {session: req.session.user});
+app.get("/", async (req, res) => {
+  const posts = [];
+
+  const posts_sql = `SELECT recipe_text, recipe_name, U.username, R.recipe_id FROM recipes R
+    JOIN users U ON R.user_id = U.user_id
+    WHERE R.is_posted = TRUE
+    ORDER BY R.recipe_id DESC
+    LIMIT 30
+  `
+
+  const recipes = await db.manyOrNone(posts_sql);
+  for (let i = 0; i < recipes.length; i++){
+    const recipe = recipes[i];
+    const likes = await db.manyOrNone("SELECT * FROM users_to_likes WHERE recipe_id = $1", [recipe.recipe_id]);
+
+    var user_has_liked = false;
+    if (req.session.user != undefined && req.session.user_id != undefined){
+      for (let j = 0; j < likes.length; j++){
+        if (likes[j].user_id == req.session.user.user_id){
+          user_has_liked = true;
+          break;
+        }
+      }
+    }
+
+    posts.push({
+      title: recipe.recipe_name,
+      author: recipe.username,
+      content: recipe.recipe_text,
+      likes: likes.length,
+      user_has_liked
+    })
+  }
+
+  console.log(posts);
+
+  res.render("pages/home.ejs", {session: req.session.user, posts});
 });
 
 app.get("/login", (req, res) => {
@@ -121,8 +153,6 @@ app.post("/login", async (req, res) => {
   }
 });
 
-// Authentication middleware.
-
 app.post("/register", async (req, res) => {
   const hash = await bcrypt.hash(req.body.password, 10);
   const query = 'INSERT INTO users(email, username, password) VALUES ($1,$2,$3)';
@@ -162,7 +192,7 @@ app.get("/register", (req, res) => {
     res.render("pages/register.ejs",{session: req.session.user});
 });
 
-const auth = (req, res, next) => {
+const auth = (req, res, next) => { //Authentication Middleware
   if (!req.session.user) {
     return res.redirect("/login");
   }
@@ -343,6 +373,13 @@ app.post('/pantry/search', async (req, res) => {
     });
 });
 
+app.post("/api/like", async (req, res) => {
+
+});
+app.post("/api/unlike", async (req, res) => {
+
+}); //todo
+
 app.post('/pantry/search', async (req, res) => {
   var search_ingredients = 
   `SELECT *
@@ -428,21 +465,18 @@ app.post('/kitchen/create', async (req, res) => {
   const is_starred = false;
   const restrictionChoice = req.body.isRestricted;
   const restricted = restrictionChoice === 'restricted';
-  console.log("restricted = " + restricted);
-  console.log("restrictionChoice"+restrictionChoice);
   let query;
   
   const dietaryRestrictions = await db.one(' SELECT users.d_restric FROM users WHERE users.user_id = $1 ', [user_id]);
-  console.log("diet ====== " + dietaryRestrictions.d_restric);
   // if isRestricted then use the ingredients 
   if(restricted === true)
   {
-    console.log("its restricrted");
     try{
     const ingredients = await db.any('SELECT ingredients.ingredient_text FROM ingredients INNER JOIN users_to_ingredients ON ingredients.ingredient_id = users_to_ingredients.ingredient_id WHERE users_to_ingredients.user_id = $1', [user_id])
     query = `\n\nHuman: 
     Generate a recipe that aligns with the user's input and ingredient preferences. User's input: "${prompt}". 
-    The recipe must only utilize ingredients from the following list. Do not return a recipe that uses ingredients that are not present in the list. If there are not enough ingredients in the list then return "Not enough ingredients". Ingredient list: ${ingredients}.
+    The recipe must only utilize ingredients from the following list. Do not return a recipe that uses ingredients that are not present in the list.
+    If there are not enough ingredients in the list then return "Not enough ingredients". Ingredient list: ${ingredients}.
     The recipe must also comply with the following dietary restrictions: ${dietaryRestrictions.d_restric}.
     Output should include only the recipe instructions and ingredients. Don't add an introductory statement like " Here is a pasta recipe:"
     \n\nAssistant:
@@ -457,12 +491,11 @@ app.post('/kitchen/create', async (req, res) => {
     query = `\n\nHuman: 
     Generate a recipe based on the user's input: "${prompt}".
     Output must include only the recipe instructions and ingredients. Don't add an introductory statement like " Here is a pasta recipe:"
-    The recipe should also comply with the following dietary restrictions: ${dietaryRestrictions.d_restric}.
+    The recipe must also comply with the following dietary restrictions: ${dietaryRestrictions.d_restric}.
 
     \n\nAssistant:
     `
   }
-  console.log("query = " + query);
   try {
     const params = {
       modelId: "anthropic.claude-v2",
@@ -554,6 +587,9 @@ app.post('/settings', async (req, res) => {
   if ((!newUsername || newUsername.trim() === '') && (!restric || restric.trim() === '')) {
     return res.redirect('/settings?msg=No empty usernames');
   }
+  if ((!newUsername || newUsername.trim() === '')) {
+    return res.redirect('/settings?msg=No empty usernames');
+  }
 
   if (newUsername.includes(' ')) {
     return res.redirect('/settings?msg=Username cannot contain spaces');
@@ -583,10 +619,6 @@ app.post('/settings', async (req, res) => {
     }
     
     const updateResult = await db.one(updateQuery, queryParameters);
-    console.log("Updated data:", updateResult);
-    
-    console.log("username: ", updateResult.username)
-    console.log("dieteryrestictions:", updateResult.d_restric)
     
     res.render('pages/settings.ejs', {
       currentUsername: updateResult.username || newUsername || currentUsername,
