@@ -1,21 +1,28 @@
 <%- include ('../partials/header') %>
 <%- include ('../partials/menu') %>
 
-<div class="accordion accordion-flush home-color" ">
-    <h1 class="title text-center">Favorites</h1>
-    <% recipes.forEach(function(item){%>
-    <div class="accordion-item fav">
-      <h2 class="accordion-header">
-        <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
-            <h3><%=item.recipe_name%></h3>
-        </button>
-      </h2>
-      <!-- <div id="collapseOne" class="accordion-collapse collapse show" data-bs-parent="#accordionExample"> -->
-        <div class="accordion-collapse collapse show" data-bs-parent="#accordionExample"></div>
-        <div class="accordion-body">
-          <strong><%=item.recipe_text%> </strong>
+<div class="accordion accordion-flush home-color">
+  <h1 class="title text-center">Favorites</h1>
+  <div class="accordion" id="accordionExample">
+    <% recipes.forEach(function(item, index){ %>
+      <div class="fav accordion-item">
+        <h2 class="accordion-header" id="heading<%= index + 1 %>">
+          <button class="accordion-button" type="button" data-bs-toggle="collapse"
+            data-bs-target="#collapse<%= index + 1 %>" aria-expanded="true" aria-controls="collapse<%= index + 1 %>">
+            <h3>
+              <%= item.recipe_name %>
+            </h3>
+          </button>
+        </h2>
+        <div id="collapse<%= index + 1 %>" class="accordion-collapse collapse" aria-labelledby="heading<%= index + 1 %>"
+          data-bs-parent="#accordionExample">
+          <div class="accordion-body">
+            <%= item.recipe_text %>
+          </div>
+        </div>
       </div>
-    </div>
-<% }); %>
+      <% }); %>
   </div>
+</div>
+
 <%- include ('../partials/footer') %>
