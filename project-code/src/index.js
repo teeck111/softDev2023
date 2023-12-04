@@ -554,6 +554,9 @@ app.post('/settings', async (req, res) => {
   if ((!newUsername || newUsername.trim() === '') && (!restric || restric.trim() === '')) {
     return res.redirect('/settings?msg=No empty usernames');
   }
+  if ((!newUsername || newUsername.trim() === '')) {
+    return res.redirect('/settings?msg=No empty usernames');
+  }
 
   if (newUsername.includes(' ')) {
     return res.redirect('/settings?msg=Username cannot contain spaces');
