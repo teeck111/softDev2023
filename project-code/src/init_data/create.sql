@@ -19,6 +19,7 @@ CREATE TABLE recipes (
     CONSTRAINT fk_creator
         FOREIGN KEY(user_id)
             REFERENCES users(user_id)
+        ON DELETE CASCADE
 );
 
 CREATE TABLE ingredients (
