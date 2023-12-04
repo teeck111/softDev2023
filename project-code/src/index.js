@@ -634,6 +634,24 @@ app.post('/settings', async (req, res) => {
   }
 });
 
+
+app.post('/kitchen/update/:recipeId', async (req, res) => {
+
+      const recipeId = req.params.recipeId;
+      const { recipeName, recipeText, isStarred } = req.body;
+      stared = (isStarred === 'on' ? true : false);
+      try {
+          const updateQuery = 'UPDATE recipes SET recipe_name = $1, recipe_text = $2, is_starred = $3 WHERE recipe_id = $4 RETURNING *';
+          await db.one(updateQuery, [recipeName, recipeText, stared, recipeId]);
+          res.redirect('/kitchen'); 
+      } catch (error) {
+          console.error('Error updating recipe:', error);
+          res.status(500).send('Internal server error');
+      }
+});
+
+
+
 app.get("/logout", (req, res) => {
   req.session.destroy();
   res.redirect("/")
