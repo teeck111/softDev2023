@@ -60,11 +60,43 @@ app.use(
   })
 );
 
-app.get("/", (req, res) => {
-  console.log(req.session.user);
-  console.log(req.session); 
-    res.render("pages/home.ejs",
-      {session: req.session.user});
+app.get("/", async (req, res) => {
+  const posts = [];
+
+  const posts_sql = `SELECT recipe_text, recipe_name, U.username, R.recipe_id FROM recipes R
+    JOIN users U ON R.user_id = U.user_id
+    WHERE R.is_posted = TRUE
+    ORDER BY R.recipe_id DESC
+    LIMIT 30
+  `
+
+  const recipes = await db.manyOrNone(posts_sql);
+  for (let i = 0; i < recipes.length; i++){
+    const recipe = recipes[i];
+    const likes = await db.manyOrNone("SELECT * FROM users_to_likes WHERE recipe_id = $1", [recipe.recipe_id]);
+
+    var user_has_liked = false;
+    if (req.session.user != undefined && req.session.user_id != undefined){
+      for (let j = 0; j < likes.length; j++){
+        if (likes[j].user_id == req.session.user.user_id){
+          user_has_liked = true;
+          break;
+        }
+      }
+    }
+
+    posts.push({
+      title: recipe.recipe_name,
+      author: recipe.username,
+      content: recipe.recipe_text,
+      likes: likes.length,
+      user_has_liked
+    })
+  }
+
+  console.log(posts);
+
+  res.render("pages/home.ejs", {session: req.session.user, posts});
 });
 
 app.get("/login", (req, res) => {
@@ -121,8 +153,6 @@ app.post("/login", async (req, res) => {
   }
 });
 
-// Authentication middleware.
-
 app.post("/register", async (req, res) => {
   const hash = await bcrypt.hash(req.body.password, 10);
   const query = 'INSERT INTO users(email, username, password) VALUES ($1,$2,$3)';
@@ -162,7 +192,7 @@ app.get("/register", (req, res) => {
     res.render("pages/register.ejs",{session: req.session.user});
 });
 
-const auth = (req, res, next) => {
+const auth = (req, res, next) => { //Authentication Middleware
   if (!req.session.user) {
     return res.redirect("/login");
   }
@@ -342,6 +372,13 @@ app.post('/pantry/search', async (req, res) => {
       });
     });
 });
+
+app.post("/api/like", async (req, res) => {
+
+});
+app.post("/api/unlike", async (req, res) => {
+
+}); //todo
 
 app.post('/pantry/search', async (req, res) => {
   var search_ingredients = 
@@ -548,6 +585,9 @@ app.post('/settings', async (req, res) => {
   const restric = req.body.d_res;
   const userId = req.session.user.user_id
   if ((!newUsername || newUsername.trim() === '') && (!restric || restric.trim() === '')) {
+    return res.redirect('/settings?msg=No empty usernames');
+  }
+  if ((!newUsername || newUsername.trim() === '')) {
     return res.redirect('/settings?msg=No empty usernames');
   }
 
