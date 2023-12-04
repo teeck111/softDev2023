@@ -1,20 +1,19 @@
 <%- include ('../partials/header') %>
-    <%- include ('../partials/menu') %>
+<%- include ('../partials/menu') %>
 
 <div class="container home-color">
     <%- include ('../partials/message') %>
     <form action="/settings" method="POST">
         <h1 class="title text-center">Settings</h1>
         <div class="mb-3 form-group set">
-            <label  class="form-label">Username</label>
-            <input type="username" name="username" class="form-control" placeholder="<%=username%>">
+            <label class="form-label">Username</label>
+            <input type="username" name="username" class="form-control" value="<%= currentUsername %>">
         </div>
         <div class="mb-3 form-group set">
             <label class="form-label">Dietary Restrictions</label>
-            <textarea class="form-control" name="d_res" type="text" placeholder="<%=res%>" rows="3"></textarea>
+            <textarea class="form-control" name="d_res" type="text" rows="3"><%= currentDietaryRestrictions %></textarea>
             <button type="submit" class="btn btn-primary rec">Save preferences</button>
         </div>
-        
     </form>
 </div>
-        <%- include ('../partials/footer') %>
+<%- include ('../partials/footer') %>

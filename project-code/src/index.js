@@ -394,8 +394,8 @@ app.get('/settings', async (req, res) => {
     const dietaryRestrictions = data[1].d_restric;
 
     res.render('pages/settings.ejs', {
-      username: username,
-      res: dietaryRestrictions,
+      currentUsername: username,
+      currentDietaryRestrictions: dietaryRestrictions,
       session: req.session.user,
       message: message 
     });
@@ -432,9 +432,9 @@ app.post('/kitchen/create', async (req, res) => {
   console.log("restrictionChoice"+restrictionChoice);
   let query;
   
-  const dietaryRestrictions = await db.any(' SELECT users.d_restric FROM users WHERE users.user_id = $1 ', [user_id]);
-  
-  // if isRestricted then use the ingredients
+  const dietaryRestrictions = await db.one(' SELECT users.d_restric FROM users WHERE users.user_id = $1 ', [user_id]);
+  console.log("diet ====== " + dietaryRestrictions.d_restric);
+  // if isRestricted then use the ingredients 
   if(restricted === true)
   {
     console.log("its restricrted");
@@ -443,8 +443,8 @@ app.post('/kitchen/create', async (req, res) => {
     query = `\n\nHuman: 
     Generate a recipe that aligns with the user's input and ingredient preferences. User's input: "${prompt}". 
     The recipe must only utilize ingredients from the following list. Do not return a recipe that uses ingredients that are not present in the list. If there are not enough ingredients in the list then return "Not enough ingredients". Ingredient list: ${ingredients}.
-    The recipe must also comply with the following dietary restrictions: ${dietaryRestrictions}.
-    Output should include only the recipe instructions and ingredients. Don't add an introductory statement like " Here is a vegan pasta recipe:"
+    The recipe must also comply with the following dietary restrictions: ${dietaryRestrictions.d_restric}.
+    Output should include only the recipe instructions and ingredients. Don't add an introductory statement like " Here is a pasta recipe:"
     \n\nAssistant:
     `;
 
@@ -456,13 +456,13 @@ app.post('/kitchen/create', async (req, res) => {
     // restricted is not selected so we won't need to use ingredients
     query = `\n\nHuman: 
     Generate a recipe based on the user's input: "${prompt}".
-    Output must include only the recipe instructions and ingredients. Don't add an introductory statement like " Here is a vegan pasta recipe:"
-    The recipe should also comply with the following dietary restrictions: ${dietaryRestrictions}.
+    Output must include only the recipe instructions and ingredients. Don't add an introductory statement like " Here is a pasta recipe:"
+    The recipe should also comply with the following dietary restrictions: ${dietaryRestrictions.d_restric}.
 
     \n\nAssistant:
     `
   }
-
+  console.log("query = " + query);
   try {
     const params = {
       modelId: "anthropic.claude-v2",
@@ -550,7 +550,7 @@ app.post('/kitchen/create', async (req, res) => {
 app.post('/settings', async (req, res) => {
   const newUsername = req.body.username;
   const restric = req.body.d_res;
-
+  const userId = req.session.user.user_id
   if ((!newUsername || newUsername.trim() === '') && (!restric || restric.trim() === '')) {
     return res.redirect('/settings?msg=No empty usernames');
   }
@@ -559,37 +559,48 @@ app.post('/settings', async (req, res) => {
     return res.redirect('/settings?msg=Username cannot contain spaces');
   } 
 
-  const checkQuery = "SELECT * FROM users WHERE username = $1";
-  try {
-    const check = await db.oneOrNone(checkQuery, [newUsername]);
-    if (check) {
-      return res.redirect('/settings?msg=Username already exists');
-    }
+  getCurrentUsername = 'SELECT username from users where user_id = $1'
+  const currentUsernameResult = await db.one(getCurrentUsername, [userId]);
+  const currentUsername = currentUsernameResult.username;
 
+  try {
+    if(currentUsername != newUsername){
+      const checkQuery = "SELECT * FROM users WHERE username = $1";
+      const check = await db.oneOrNone(checkQuery, [newUsername]);
+      if (check) {
+        return res.redirect('/settings?msg=Username already exists');
+      }
+    }
     let updateQuery;
     let queryParameters;
 
-    if (newUsername && restric) {
+    if (!restric || restric.trim() === '') {
+      updateQuery = `UPDATE users SET username = $1, d_restric = NULL WHERE user_id = $2 RETURNING username, d_restric`;
+      queryParameters = [newUsername, userId];
+    } else {
       updateQuery = `UPDATE users SET username = $1, d_restric = $2 WHERE user_id = $3 RETURNING username, d_restric`;
-      queryParameters = [newUsername, restric, req.session.user.user_id];
-    } else if (newUsername) {
-      updateQuery = `UPDATE users SET username = $1 WHERE user_id = $2 RETURNING username`;
-      queryParameters = [newUsername, req.session.user.user_id];
-    } else if (restric) {
-      updateQuery = `UPDATE users SET d_restric = $1 WHERE user_id = $2 RETURNING d_restric`;
-      queryParameters = [restric, req.session.user.user_id];
+      queryParameters = [newUsername, restric, userId];
     }
-
+    
     const updateResult = await db.one(updateQuery, queryParameters);
     console.log("Updated data:", updateResult);
     
-    return res.redirect('/settings');
+    console.log("username: ", updateResult.username)
+    console.log("dieteryrestictions:", updateResult.d_restric)
+    
+    res.render('pages/settings.ejs', {
+      currentUsername: updateResult.username || newUsername || currentUsername,
+      currentDietaryRestrictions: updateResult.d_restric || '',
+      session: req.session.user,
+      message: "Settings updated successfully"
+    });
+
+    // return res.redirect('/settings');
   } catch (error) {
     console.log('Error:', error);
     return res.status(400).json({ error: error.message });
   }
 });
-
 
 app.get("/logout", (req, res) => {
   req.session.destroy();
