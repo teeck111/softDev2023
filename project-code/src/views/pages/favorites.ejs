@@ -6,17 +6,17 @@
   <div class="accordion" id="accordionExample">
     <% recipes.forEach(function(item, index){ %>
       <div class="fav accordion-item">
-        <h2 class="accordion-header" id="heading<%= index + 1 %>">
-          <button class="accordion-button" type="button" data-bs-toggle="collapse"
+        <h2 class="fav accordion-header" id="heading<%= index + 1 %>">
+          <button class="accordion-button f" type="button" data-bs-toggle="collapse"
             data-bs-target="#collapse<%= index + 1 %>" aria-expanded="true" aria-controls="collapse<%= index + 1 %>">
             <h3>
               <%= item.recipe_name %>
             </h3>
           </button>
         </h2>
-        <div id="collapse<%= index + 1 %>" class="accordion-collapse collapse" aria-labelledby="heading<%= index + 1 %>"
+        <div id="collapse<%= index + 1 %>" class="accordion-collapse collapse f" aria-labelledby="heading<%= index + 1 %>"
           data-bs-parent="#accordionExample">
-          <div class="accordion-body">
+          <div class="accordion-body f">
             <%= item.recipe_text %>
           </div>
         </div>

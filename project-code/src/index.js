@@ -67,7 +67,7 @@ app.get("/", async (req, res) => {
     JOIN users U ON R.user_id = U.user_id
     WHERE R.is_posted = TRUE
     ORDER BY R.recipe_id DESC
-    LIMIT 30
+    LIMIT 15
   `
 
   const recipes = await db.manyOrNone(posts_sql);

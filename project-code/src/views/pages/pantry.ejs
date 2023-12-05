@@ -2,7 +2,7 @@
 <%- include ('../partials/menu') %>
 
 <main>
-    <div class="container-fluid">
+    <div class="kitch container-fluid pant">
         <div class="row">
             <div class="col-6">
                 <table>
@@ -10,13 +10,13 @@
                         <th style="font-size:x-large">Your Ingredients</th>
                     </tr>
                 </table>
-                <div style="overflow: auto; max-height: 75vh; border: 2px solid; border-color: black; padding: 10px;">
+                <div style="overflow: auto; max-height: 75vh; border: 2px solid; border-color: rgb(25, 138, 27); padding: 10px;">
                     <table>
                     <% var table_rows = '';
                         ingredients.forEach(function(item){
                             table_rows += `<tr><td>${item.ingredient_text}</td>
                                 <td><form action="/pantry/delete" method="POST">
-                                    <input type="submit" value="REMOVE" class="btn btn-outline-success" style="background-color:#05310b"/>
+                                    <input type="submit" value="REMOVE" class="btn btn-outline-success" style="background-color:#06410e"/>
                                     <input type="hidden" name="ingredient_id" value="${item.ingredient_id}">
                                 </form></td></tr>`;
                         });
@@ -25,7 +25,7 @@
                     </table>
                 </div>
             </div>
-            <div class="col bg-success-subtle border-start border-4 border-dark" style="max-height: 100%">
+            <div class="pan col bg-success-subtle border-start border-4" style="max-height: 100%">
                 <table>
                     <tr>
                         <th style="font-size:x-large">Add Ingredients</th>
@@ -55,7 +55,7 @@
                         <th style="font-size:x-large">Available Ingredients</th>
                     </tr>
                     </table>
-                        <div style="overflow: auto; max-height: 50vh; border: 2px solid black; padding: 10px;">
+                        <div style="overflow: auto; max-height: 50vh; border: 2px solid rgb(22, 119, 19); padding: 10px;">
                             <table>
                             <tr>
                                 <% var table_rows = '';

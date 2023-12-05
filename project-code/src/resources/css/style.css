@@ -14,9 +14,7 @@ h1{
 
 }
 
-.container{
-    font-family: Arial, Helvetica, sans-serif;
-}
+
 
 body {
     background-color: rgb(76, 168, 68);
@@ -30,7 +28,7 @@ body {
 
 .reg {
     color: #FFFDF7;
-    margin-bottom: 80px;
+    margin-bottom: 30px;
     border: 5px solid #FFFDF7; 
     border-radius: 5px;
 }
@@ -91,7 +89,7 @@ a {
     margin-top: 60px;
     margin-left: 15%;
     margin-right: 15%;
-    
+    border-radius: 5px !important;
 }
 
 .set {
@@ -112,12 +110,15 @@ a {
 #social-media {
     background-color: white;
     border-radius: 5px;
+    margin: 30px;
 }
 #sm-object {
+    font: cochin;
     margin-top: 40px; 
     background-color: white;
     border-radius: 5px;
-    margin: 30px;
+    padding: 35px;
+    color: rgb(29, 107, 21);
 }
 
 #loadingSpinner {
@@ -139,3 +140,51 @@ a {
     max-width: 300px; 
     height: auto; 
 }
+.line {
+    color: rgb(247, 242, 242, 1); 
+    border: 3px solid rgb(247, 241, 241, 1);
+    border-radius: 4px;
+}
+
+.card {
+    background-color: rgb(7, 84, 7) !important;
+}
+
+.kitch {
+    font: cochin;
+    color: #FFFDF7;
+}
+
+.past {
+    height: 100%;
+}
+
+.f {
+    font: cochin;
+    background-color: white;
+    border-radius: 5px;
+    padding: 35px;
+    color: rgb(29, 107, 21) !important;
+    font-size: 2vw;
+}
+
+.back {
+    background-image: url('../../resources/imgs/garlic-2556022.jpg');
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+    background-size: 100% 100%;
+}
+
+/* .pant {
+    background-image: url('../../resources/imgs/muradi-0b8NaL2CMaQ-unsplash.jpg');
+        background-repeat: no-repeat;
+        background-attachment: fixed;
+        background-size: 100% 100%;
+} */
+
+.pan {
+    background-color: green !important;
+}
+
+$accordion-button-active-bg: tint-color($component-active-bg, 90%);
+$accordion-button-active-color: shade-color($primary, 10%);
