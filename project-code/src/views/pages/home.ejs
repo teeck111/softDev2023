@@ -27,11 +27,14 @@
         in preferences and dietary restrictions.</p>
     </div>
 
-    <div class="center">
-        <button type="button" class="reg btn btn-lg" style="--bs-btn-padding-y: .8rem; --bs-btn-padding-x: 2rem; --bs-btn-font-size: 2.6rem;" >
-            <a href="register">Sign Up</a>
-        </button>
-    </div>
+    <% if (!session) { %>
+        <div class="center">
+            <button type="button" class="reg btn btn-lg"
+                style="--bs-btn-padding-y: .8rem; --bs-btn-padding-x: 2rem; --bs-btn-font-size: 2.6rem;">
+                <a href="register">Sign Up</a>
+            </button>
+        </div>
+        <% } %>
     <% if (session) { %> 
         <hr class="line">
         <div class="title home-color mx-auto text-center">
@@ -42,7 +45,7 @@
             <div id="social-media">
                 <div class="text-center" id="sm-object">
                     <div class="text-start" id="title">
-                        <h2> <a><%= post.title %></a> - <%= post.author %></h2>  
+                        <h2> <a><%= post.title %></a> </h2> <h6> <%= post.author %> </h6> 
                     </div>
                     <hr>
                     <div id="info">
