@@ -379,12 +379,10 @@ app.post("/pantry/add", async (req, res) => {
   var updated_ingredients = await db.none(add_query, [req.session.user.user_id, req.body.ingredient_id]);
   return res.redirect("/pantry");
 
-<<<<<<< HEAD
 });
-=======
 
 
->>>>>>> main
+
 
 app.post('/pantry/search', async (req, res) => {
   var search_ingredients = 
@@ -486,13 +484,11 @@ app.get('/settings', async (req, res) => {
 app.get("/favorites", async (req, res) => {
   db.any("SELECT * FROM recipes WHERE user_id = $1 AND is_starred = TRUE", [req.session.user.user_id])
 
-app.get("/favorites", (req, res) => {
-  db.any("SELECT * FROM recipes WHERE user_id = $1 AND is_starred = 1", [req.session.user.user_id])
->>>>>>> main
     .then((recipes) => {
       res.render('pages/favorites', { recipes, session: req.session.user, user_id: req.session.user.user_id,});
       // Render the 'favorites' page with the 'recipes' array and 'user_id'
       console.log('User ID:', req.session.user.user_id);
+      console.log(recipes);
 
     })
 
