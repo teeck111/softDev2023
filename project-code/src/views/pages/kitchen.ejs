@@ -45,21 +45,19 @@
                                                 <input type="text" class="kitch form-control border border-success" id="prompt" name="prompt">
                                             </div>
                                             <div class="col">
-                                                <button type="submit" class="kitch btn btn-outline-success" name="action" value="create">Create</button>
+                                                <button type="submit" class="kitch btn btn-kitchen-create" name="action" value="create">Create</button>
                                             </div>
                                             
                                         </div>
 
                                         
 
-                                        <div class="btn-group kitch " role="group" aria-label="Basic radio toggle button group">
+                                        <div class="btn-group kitch" role="group" aria-label="Basic radio toggle button group">
                                             <input type="radio" class="btn-check" name="isRestricted" id="pantry_true" value="restricted" autocomplete="off" <% if (restrictionChoice === 'restricted') { %>checked<% } %>>
-
-                                            <label class="btn btn-outline-success" id="pantryT" for="pantry_true">Pantry</label>
-
+                                            <label class="btn btn-kitchen-toggle" id="pantryT" for="pantry_true">Pantry</label>
+                                        
                                             <input type="radio" class="btn-check" name="isRestricted" id="pantry_false" value="unrestricted" autocomplete="off" <% if (restrictionChoice === 'unrestricted') { %>checked<% } %>>
-                                            <label class="btn btn-outline-success" id="pantryF" for="pantry_false">No-Pantry</label>
-
+                                            <label class="btn btn-kitchen-toggle" id="pantryF" for="pantry_false">No-Pantry</label>
                                         </div>
                                     </form>
                                 </td>
@@ -83,10 +81,17 @@
                                 <% recipes.slice(0,10).forEach(function(recipe, r_index) { %> 
                                     <tr> 
                                         <td class="row"> 
-                                            <a class="hover-dark" data-bs-toggle="modal" data-bs-target="#recipeModal<%= recipe.recipe_id %>" style="cursor: pointer" id="recipeLink<%= recipe.recipe_id %>">
-                                                <%= recipe.recipe_name %>
-                                            </a>
-                                             
+                                            <div class="col-8">
+                                                <a class="hover-dark" style="cursor: pointer" data-bs-toggle="modal" data-bs-target="#recipeModal<%= recipe.recipe_id %>" id="recipeLink<%= recipe.recipe_id %>">
+                                                    <%= recipe.recipe_name %>
+                                                </a>
+                                            </div> 
+                                            <div class="col-4">
+                                            <form action="/kitchen/delete/<%= recipe.recipe_id %>" method="post">
+                                                <button type="submit" class="btn btn-outline-danger" style="--bs-btn-padding-y: .25rem; --bs-btn-padding-x: .5rem; --bs-btn-font-size: .75rem;">
+                                                    Delete
+                                                </button>
+                                            </form>  
                                         <td> 
                                     </tr>        
                                     <div class="modal fade modal-wide" id="recipeModal<%= recipe.recipe_id %>" tabindex="-1" aria-labelledby="recipeModalLabel" aria-hidden="true">
