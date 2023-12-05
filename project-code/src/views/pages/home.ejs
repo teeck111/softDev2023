@@ -32,21 +32,27 @@
             <a href="register">Sign Up</a>
         </button>
     </div>
-    <% posts.forEach(function(post){  %>
-    <div id="social-media">
-        <div class="text-center" id="sm-object">
-            <div class="text-start" id="title">
-                <h2> <a><%= post.title %></a> - <%= post.author %></h2>  
-            </div>
-            <hr>
-            <div id="info">
-                <p>
-                    <%= post.content.replaceAll("\\n", "\n") %>
-                </p>
-            </div>
+    <% if (session) { %> 
+        <hr class="line">
+        <div class="title home-color mx-auto text-center">
+        
+            <h1>Recent Posts</h1>
         </div>
-    </div> 
-    <% } ); %> 
+            <% posts.forEach(function(post){  %>
+            <div id="social-media">
+                <div class="text-center" id="sm-object">
+                    <div class="text-start" id="title">
+                        <h2> <a><%= post.title %></a> - <%= post.author %></h2>  
+                    </div>
+                    <hr>
+                    <div id="info">
+                        <p>
+                            <%= post.content.replaceAll("\\n", "\n") %>
+                        </p>
+                    </div>
+                </div>
+            </div> 
+            <% } ); }%> 
 </div>
 
 <%- include ('../partials/footer') %>
