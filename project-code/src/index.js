@@ -341,7 +341,7 @@ app.post("/pantry/delete", async (req, res) => {
                         WHERE
                           user_id = $1
                         AND 
-                          ingredient_id = $2;`
+                          ingredient_id = $2;`;
   var updated_ingredients = await db.none(delete_query, [req.session.user.user_id, req.body.ingredient_id]);
   return res.redirect("/pantry");
 });
@@ -353,7 +353,6 @@ app.post("/pantry/add", async (req, res) => {
                         ($1, $2);`;
   var updated_ingredients = await db.none(add_query, [req.session.user.user_id, req.body.ingredient_id]);
   return res.redirect("/pantry");
-
 });
 
 app.post('/pantry/search', async (req, res) => {
@@ -401,41 +400,17 @@ app.post("/api/like", async (req, res) => {
                     );`;
   var updated_likes = await db.none(like_query, [req.session.user.user_id, req.body.recipe_id]);
 });
+
 app.post("/api/unlike", async (req, res) => {
-
+  var unlike_query = `DELETE FROM 
+                        users_to_likes
+                      WHERE 
+                        user_id = $1
+                      AND
+                        recipe_id = $2
+                      );`;
+  var updated_likes = await db.none(unlike_query, [req.session.user.user_id, req.body.recipe_id]);
 }); //todo
-
-app.post('/pantry/search', async (req, res) => {
-  var search_ingredients = 
-  `SELECT *
-  FROM ingredients i
-  WHERE NOT EXISTS (
-    SELECT 1
-    FROM users_to_ingredients u_to_i
-    WHERE u_to_i.ingredient_id = i.ingredient_id
-    AND u_to_i.user_id = $1
-  )
-  AND LOWER(i.ingredient_text) LIKE LOWER('${req.body.search_val}%')
-  ORDER BY i.ingredient_text ASC;`;
-  var unused_ingredients = await db.any(search_ingredients, [req.session.user.user_id]);
-  db.any(all_user_ingredients, [req.session.user.user_id])
-    .then((ingredients) => {
-      res.render("pages/pantry.ejs", {
-        ingredients,
-        unused_ingredients,
-        session: req.session.user
-      });
-    })
-    .catch((err) => {
-      res.render("pages/pantry.ejs", {
-        ingredients: [],
-        unused_ingredients: [],
-        error: true,
-        message: err.message,
-        session: req.session.user
-      });
-    });
-});
 
 app.get('/settings', async (req, res) => {
   const user_id = req.session.user.user_id;
