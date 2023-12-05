@@ -82,7 +82,7 @@
                                     <tr> 
                                         <td class="row"> 
                                             <div class="col-8">
-                                                <a class="hover-dark" data-bs-toggle="modal" data-bs-target="#recipeModal<%= recipe.recipe_id %>" id="recipeLink<%= recipe.recipe_id %>">
+                                                <a class="hover-dark" style="cursor: pointer" data-bs-toggle="modal" data-bs-target="#recipeModal<%= recipe.recipe_id %>" id="recipeLink<%= recipe.recipe_id %>">
                                                     <%= recipe.recipe_name %>
                                                 </a>
                                             </div> 
@@ -109,7 +109,7 @@
                                                     </div>
                                                     <div class="mb-3">
                                                         <label for="recipeText" class="form-label">Recipe Text:</label>
-                                                        <textarea class="form-control" name="recipeText" rows="4" required><%= recipe.recipe_text %></textarea>
+                                                        <textarea class="form-control" name="recipeText" rows="4" required><%= recipe.recipe_text.replaceAll("\\n", "\n") %></textarea>
                                                     </div>
                                                     <div class="mb-3 form-check">
                                                         <input type="checkbox" class="form-check-input" name="isStarred" <% if (recipe.is_starred) { %> checked <% } %>>

@@ -46,7 +46,17 @@ p {
     color: #3E342F;
 }
 
-.center {
+.login_box{
+    width: 45%; 
+    position:relative; 
+    margin: 50px; 
+    border-radius: 15px; 
+    border: 6px solid #FFF; 
+    padding: 35px;
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+.center{
     display: flex;
     justify-content: center;
     align-items: center;
