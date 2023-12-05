@@ -224,12 +224,13 @@ app.get("/kitchen", (req, res) => {
     .then((recipes) => {
       // Render the 'kitchen' page with the 'recipes' array and 'user_id'
       console.log('User ID:', req.session.user.user_id);
-      res.render('pages/kitchen', { recipes, session: req.session.user, user_id: req.session.user.user_id, display_recipe_index: req.query.recipe_index, bedrockreturn: null });
+      res.render('pages/kitchen', { recipes, session: req.session.user, user_id: req.session.user.user_id, display_recipe_index: req.query.recipe_index, bedrockreturn: null, restrictionChoice: 'restricted' });
 
     })
     .catch((err) => {
       res.render("pages/kitchen", {
         recipes: [],
+        restrictionChoice: 'restricted',
         error: true,
         message: err.message,
         session: req.session.user,
@@ -584,7 +585,7 @@ app.post('/kitchen/create', async (req, res) => {
 
   // Render the kitchen page with the Bedrock API response data
   const recipes = await db.any("SELECT * FROM recipes WHERE user_id = $1", [user_id])
-  res.render("pages/kitchen", { recipes, bedrockreturn: bedrockreturn, session: req.session.user, user_id: user_id});
+  res.render("pages/kitchen", { recipes, bedrockreturn: bedrockreturn, session: req.session.user, user_id: user_id, restrictionChoice: restrictionChoice});
   return;
   } catch (error) {
       console.error('Error creating recipe:', error);
