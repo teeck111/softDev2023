@@ -490,11 +490,18 @@ app.post('/kitchen/create', async (req, res) => {
   if(restricted === true)
   {
     try{
-    const ingredients = await db.any('SELECT ingredients.ingredient_text FROM ingredients INNER JOIN users_to_ingredients ON ingredients.ingredient_id = users_to_ingredients.ingredient_id WHERE users_to_ingredients.user_id = $1', [user_id])
+    const ingredients = await db.any('SELECT ingredients.ingredient_text FROM ingredients INNER JOIN users_to_ingredients ON ingredients.ingredient_id = users_to_ingredients.ingredient_id WHERE users_to_ingredients.user_id = $1', [user_id]);
+    ingredients.forEach(ingredient => {
+      console.log(ingredient.ingredient_text);
+    });
+
+    const ingredientTexts = ingredients.map(ingredient => ingredient.ingredient_text).join(", ");
+    console.log("Comma-separated ingredients: " + ingredientTexts);
+
     query = `\n\nHuman: 
     Generate a recipe that aligns with the user's input and ingredient preferences. User's input: "${prompt}". 
     The recipe must only utilize ingredients from the following list. Do not return a recipe that uses ingredients that are not present in the list.
-    If there are not enough ingredients in the list then return "Not enough ingredients". Ingredient list: ${ingredients}.
+    If there are not enough ingredients in the list then return "Not enough ingredients". Ingredient list: ${ingredientTexts}.
     The recipe must also comply with the following dietary restrictions: ${dietaryRestrictions.d_restric}.
     Output should include only the recipe instructions and ingredients. Don't add an introductory statement like " Here is a pasta recipe:"
     \n\nAssistant:
