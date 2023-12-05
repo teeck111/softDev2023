@@ -218,7 +218,7 @@ app.get("/kitchen", (req, res) => {
     return;
   }
 
-  const user_recipes = 'SELECT * FROM recipes WHERE user_id = $1 LIMIT 10'
+  const user_recipes = 'SELECT * FROM recipes WHERE user_id = $1 ORDER BY recipe_id LIMIT 10'
 
   db.any(user_recipes, [req.session.user.user_id])
     .then((recipes) => {
@@ -591,7 +591,7 @@ app.post('/kitchen/create', async (req, res) => {
   };
 
   // Render the kitchen page with the Bedrock API response data
-  const recipes = await db.any("SELECT * FROM recipes WHERE user_id = $1 LIMIT 10'", [user_id])
+  const recipes = await db.any("SELECT * FROM recipes WHERE user_id = $1 ORDER BY recipe_id LIMIT 10", [user_id])
   res.render("pages/kitchen", { recipes, bedrockreturn: bedrockreturn, session: req.session.user, user_id: user_id, restrictionChoice: restrictionChoice});
   return;
   } catch (error) {
