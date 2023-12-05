@@ -28,7 +28,7 @@
                                             <% } %>
                                         </textarea>
                                         <center>
-                                            <div id="loadingSpinner" style="display: none;">
+                                            <div class="rounded bg bg-success-subtle" id="loadingSpinner" style="display: none;">
                                                 <img src="../../resources/imgs/foodLoading.gif" alt="Loading...">
                                             </div>
                                         </center>
@@ -51,11 +51,13 @@
                                         </div>
 
                                         
+
                                         <div class="btn-group kitch " role="group" aria-label="Basic radio toggle button group">
-                                            <input type="radio" class="btn-check" name="isRestricted" id="pantry_true" value="restricted" autocomplete="off" checked>
+                                            <input type="radio" class="btn-check" name="isRestricted" id="pantry_true" value="restricted" autocomplete="off" <% if (restrictionChoice === 'restricted') { %>checked<% } %>>
+
                                             <label class="btn btn-outline-success" id="pantryT" for="pantry_true">Pantry</label>
 
-                                            <input type="radio" class="btn-check" name="isRestricted" id="pantry_false" value="unrestricted" autocomplete="off">
+                                            <input type="radio" class="btn-check" name="isRestricted" id="pantry_false" value="unrestricted" autocomplete="off" <% if (restrictionChoice === 'unrestricted') { %>checked<% } %>>
                                             <label class="btn btn-outline-success" id="pantryF" for="pantry_false">No-Pantry</label>
 
                                         </div>
@@ -78,10 +80,10 @@
                         </thead>
                         <tbody>
                                 <% if (recipes && recipes.length > 0) { %> 
-                                    <% recipes.slice(0,15).reverse().forEach(function(recipe, r_index) { %> 
+                                    <% recipes.slice(0,10).reverse().forEach(function(recipe, r_index) { %> 
                                         <tr> 
                                             <td class="row">
-                                                <div class="col-5">
+                                                <div class="col-8">
                                                     <a class="hover-dark" data-bs-toggle="modal" data-bs-target="#recipeModal<%= recipe.recipe_id %>" id="recipeLink<%= recipe.recipe_id %>">
                                                         <%= recipe.recipe_name %>
                                                     </a>

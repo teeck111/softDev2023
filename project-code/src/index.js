@@ -224,12 +224,13 @@ app.get("/kitchen", (req, res) => {
     .then((recipes) => {
       // Render the 'kitchen' page with the 'recipes' array and 'user_id'
       console.log('User ID:', req.session.user.user_id);
-      res.render('pages/kitchen', { recipes, session: req.session.user, user_id: req.session.user.user_id, display_recipe_index: req.query.recipe_index, bedrockreturn: null });
+      res.render('pages/kitchen', { recipes, session: req.session.user, user_id: req.session.user.user_id, display_recipe_index: req.query.recipe_index, bedrockreturn: null, restrictionChoice: 'restricted' });
 
     })
     .catch((err) => {
       res.render("pages/kitchen", {
         recipes: [],
+        restrictionChoice: 'restricted',
         error: true,
         message: err.message,
         session: req.session.user,
@@ -489,11 +490,18 @@ app.post('/kitchen/create', async (req, res) => {
   if(restricted === true)
   {
     try{
-    const ingredients = await db.any('SELECT ingredients.ingredient_text FROM ingredients INNER JOIN users_to_ingredients ON ingredients.ingredient_id = users_to_ingredients.ingredient_id WHERE users_to_ingredients.user_id = $1', [user_id])
+    const ingredients = await db.any('SELECT ingredients.ingredient_text FROM ingredients INNER JOIN users_to_ingredients ON ingredients.ingredient_id = users_to_ingredients.ingredient_id WHERE users_to_ingredients.user_id = $1', [user_id]);
+    ingredients.forEach(ingredient => {
+      console.log(ingredient.ingredient_text);
+    });
+
+    const ingredientTexts = ingredients.map(ingredient => ingredient.ingredient_text).join(", ");
+    console.log("Comma-separated ingredients: " + ingredientTexts);
+
     query = `\n\nHuman: 
     Generate a recipe that aligns with the user's input and ingredient preferences. User's input: "${prompt}". 
     The recipe must only utilize ingredients from the following list. Do not return a recipe that uses ingredients that are not present in the list.
-    If there are not enough ingredients in the list then return "Not enough ingredients". Ingredient list: ${ingredients}.
+    If there are not enough ingredients in the list then return "Not enough ingredients". Ingredient list: ${ingredientTexts}.
     The recipe must also comply with the following dietary restrictions: ${dietaryRestrictions.d_restric}.
     Output should include only the recipe instructions and ingredients. Don't add an introductory statement like " Here is a pasta recipe:"
     \n\nAssistant:
@@ -584,7 +592,7 @@ app.post('/kitchen/create', async (req, res) => {
 
   // Render the kitchen page with the Bedrock API response data
   const recipes = await db.any("SELECT * FROM recipes WHERE user_id = $1", [user_id])
-  res.render("pages/kitchen", { recipes, bedrockreturn: bedrockreturn, session: req.session.user, user_id: user_id});
+  res.render("pages/kitchen", { recipes, bedrockreturn: bedrockreturn, session: req.session.user, user_id: user_id, restrictionChoice: restrictionChoice});
   return;
   } catch (error) {
       console.error('Error creating recipe:', error);
