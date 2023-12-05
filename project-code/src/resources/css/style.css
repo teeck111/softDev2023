@@ -110,14 +110,18 @@ a {
 #social-media {
     background-color: white;
     border-radius: 5px;
-    margin: 30px;
+    margin-left: 90px;
+    margin-right: 90px;
+    margin-bottom: 40px;
 }
 #sm-object {
     font: cochin;
     margin-top: 40px; 
     background-color: white;
     border-radius: 5px;
-    padding: 35px;
+    padding: 40px;
+    padding-left: 50px;
+    padding-right: 50px;
     color: rgb(29, 107, 21);
 }
 
@@ -185,6 +189,3 @@ a {
 .pan {
     background-color: green !important;
 }
-
-$accordion-button-active-bg: tint-color($component-active-bg, 90%);
-$accordion-button-active-color: shade-color($primary, 10%);
