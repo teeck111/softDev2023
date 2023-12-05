@@ -79,96 +79,52 @@
                             </tr>
                         </thead>
                         <tbody>
-                                <% if (recipes && recipes.length > 0) { %> 
-                                    <% recipes.slice(0,10).reverse().forEach(function(recipe, r_index) { %> 
-                                        <tr> 
-                                            <td class="row">
-                                                <div class="col-8">
-                                                    <a class="kitch hover-dark" data-bs-toggle="modal" data-bs-target="#recipeModal<%= recipe.recipe_id %>" id="recipeLink<%= recipe.recipe_id %>">
-                                                        <%= recipe.recipe_name %>
-                                                    </a>
-                                                </div> 
-                                                <div class="col-4">
-                                                    <form action="/kitchen/delete/<%= recipe.recipe_id %>" method="post">
-                                                        <button type="submit" class="btn btn-outline-danger" style="--bs-btn-padding-y: .25rem; --bs-btn-padding-x: .5rem; --bs-btn-font-size: .75rem;">
-                                                            Delete
-                                                        </button>
-                                                    </form>                                                    
-
-                                                </div>
-                                            <td> 
-                                        </tr>        
-                                        <div class="modal fade modal-wide" id="recipeModal<%= recipe.recipe_id %>" tabindex="-1" aria-labelledby="recipeModalLabel" aria-hidden="true">
-                                            <div class="modal-dialog">
-                                                <div class="modal-content">
-                                                    <div class="modal-header">
-                                                        <h5 class="modal-title" id="recipeModalLabel">
-                                                            <%= recipe.recipe_name %>
-                                                        </h5>
-                                                        <button type="button" class="btn-close" data-bs-dismiss="modal"
-                                                            aria-label="Close"></button>
+                            <% if (recipes && recipes.length > 0) { %> 
+                                <% recipes.slice(0,10).forEach(function(recipe, r_index) { %> 
+                                    <tr> 
+                                        <td class="row"> 
+                                            <a class="hover-dark" data-bs-toggle="modal" data-bs-target="#recipeModal<%= recipe.recipe_id %>" id="recipeLink<%= recipe.recipe_id %>">
+                                                <%= recipe.recipe_name %>
+                                            </a>
+                                             
+                                        <td> 
+                                    </tr>        
+                                    <div class="modal fade modal-wide" id="recipeModal<%= recipe.recipe_id %>" tabindex="-1" aria-labelledby="recipeModalLabel" aria-hidden="true">
+                                        <div class="modal-dialog">
+                                          <div class="modal-content">
+                                            <div class="modal-header">
+                                              <h5 class="modal-title" id="recipeModalLabel"><%= recipe.recipe_name %></h5>
+                                              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                            </div>
+                                            <div class="modal-body">
+                                                <form id="editRecipeForm" action="/kitchen/update/<%= recipe.recipe_id %>" method="post">
+                                                    <div class="mb-3">
+                                                        <label for="recipeName" class="form-label">Recipe Name:</label>
+                                                        <input type="text" class="form-control" name="recipeName" value="<%= recipe.recipe_name %>" required>
                                                     </div>
-                                                    <div class="modal-body">
-                                                        <form id="editRecipeForm">
-                                                            <div class="mb-3">
-                                                                <label for="recipeName" class="form-label">Recipe Name:</label>
-                                                                <input type="text" class="form-control" id="recipeName"
-                                                                    value="<%= recipe.recipe_name %>" required>
-                                                            </div>
-                                                            <div class="mb-3">
-                                                                <label for="recipeText" class="form-label">Recipe Text:</label>
-                                                                <textarea class="form-control" id="recipeText" rows="4"
-                                                                    required><%= recipe.recipe_text %></textarea>
-                                                            </div>
-                                                            <div class="mb-3 form-check">
-                                                                <input type="checkbox" class="form-check-input" id="favoriteRecipe" <%
-                                                                    if (recipe.is_starred) { %> checked <% } %>>
-                                                                    <label class="form-check-label" for="favoriteRecipe">Favorite
-                                                                        Recipe</label>
-                                                            </div>
-                                                        </form>
+                                                    <div class="mb-3">
+                                                        <label for="recipeText" class="form-label">Recipe Text:</label>
+                                                        <textarea class="form-control" name="recipeText" rows="4" required><%= recipe.recipe_text %></textarea>
+                                                    </div>
+                                                    <div class="mb-3 form-check">
+                                                        <input type="checkbox" class="form-check-input" name="isStarred" <% if (recipe.is_starred) { %> checked <% } %>>
+                                                        <label class="form-check-label" for="favoriteRecipe">Favorite Recipe</label>
                                                     </div>
                                                     <div class="modal-footer">
-                                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"
-                                                            aria-label="Close">Close</button>
-                                                        <button type="button" class="btn btn-primary"
-                                                            onclick="saveRecipeChanges(<%= recipe.recipe_id %>)">Save Changes</button>
-                                                        <button type="button" class="btn btn-primary"
-                                                            formaction="/kitchen/post">Post</button>
+                                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                                        <button type="submit" class="btn btn-primary">Save Changes</button>
+                                                        <button type="button" class="btn btn-primary" formaction="/kitchen/post">Post</button>
                                                     </div>
-                                                </div>
-                                                <div class="modal-body">
-                                                    <form id="editRecipeForm" action="/kitchen/update/<%= recipe.recipe_id %>" method="post">
-                                                        <div class="mb-3">
-                                                            <label for="recipeName" class="form-label">Recipe Name:</label>
-                                                            <input type="text" class="form-control" name="recipeName" value="<%= recipe.recipe_name %>" required>
-                                                        </div>
-                                                        <div class="mb-3">
-                                                            <label for="recipeText" class="form-label">Recipe Text:</label>
-                                                            <textarea class="form-control" name="recipeText" rows="4" required><%= recipe.recipe_text %></textarea>
-                                                        </div>
-                                                        <div class="mb-3 form-check">
-                                                            <input type="checkbox" class="form-check-input" name="isStarred" <% if (recipe.is_starred) { %> checked <% } %>>
-                                                            <label class="form-check-label" for="favoriteRecipe">Favorite Recipe</label>
-                                                        </div>
-                                                        <div class="modal-footer">
-                                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                                                            <button type="submit" class="btn btn-primary" data-bs-dismiss="modal">Save Changes</button>
-                                                            <button type="button" class="btn btn-primary" formaction="/kitchen/post">Post</button>
-                                                        </div>
-                                                    </form>                         
-                                                </div>
-                                              </div>
+                                                </form>
                                             </div>
+                                          </div>
                                         </div>
-                                        <% }); %>
-                                            <% } else { %>
-                                                <tr>
-                                                    <td>No recipes found</td>
-                                                </tr>
-                
-                                                <% } %>
-                
+                                      </div>                                
+                                <% }); %> 
+                        <% } else { %> 
+                            <tr><td>No recipes found</td></tr> 
+               
+                        <% } %> 
                             </tbody>
                         </table>
                     </div>
