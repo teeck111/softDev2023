@@ -488,7 +488,7 @@ app.get("/favorites", async (req, res) => {
       res.render('pages/favorites', { recipes, session: req.session.user, user_id: req.session.user.user_id,});
       // Render the 'favorites' page with the 'recipes' array and 'user_id'
       console.log('User ID:', req.session.user.user_id);
-      console.log(recipes);
+      console.log(recipe_index); //print out receipies index and try to see if value is there
 
     })
 
