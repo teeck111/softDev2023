@@ -14,10 +14,12 @@ CREATE TABLE recipes (
     recipe_name VARCHAR(255),
     user_id INT,
     is_starred BOOLEAN,
+    is_posted BOOLEAN DEFAULT FALSE,
 
     CONSTRAINT fk_creator
         FOREIGN KEY(user_id)
             REFERENCES users(user_id)
+        ON DELETE CASCADE
 );
 
 CREATE TABLE recipe_likes (
@@ -42,6 +44,15 @@ CREATE TABLE users_to_ingredients (
             REFERENCES ingredients(ingredient_id)
 );
 
-CREATE TABLE total_recipes (
-    recipes INT
+CREATE TABLE users_to_likes (
+    user_id INT,
+    recipe_id INT,
+
+    CONSTRAINT fk_user_id
+        FOREIGN KEY (user_id)
+            REFERENCES users(user_id),
+    CONSTRAINT fk_recipe_id
+        FOREIGN KEY (recipe_id)
+            REFERENCES recipes(recipe_id)
+        ON DELETE CASCADE
 );

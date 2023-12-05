@@ -44,4 +44,26 @@ document.addEventListener('DOMContentLoaded', function () {
     recipeModal.hide();
   }
 
+  function fetchUserRecipes(recipeID) {
+    fetch(`/kitchen/userRecipes`, {
+        method: 'GET',
+        body: recipeID,
+    })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`HTTP error! Status: ${response.status}`);
+            }
+            return response.json();
+        })
+        .then(data => {
+            console.log('Recipes array returned', data);
+            updateRecipeArray(data);
+
+        })
+        
+
+
+    }
+
+
   

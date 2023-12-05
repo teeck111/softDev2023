@@ -60,10 +60,43 @@ app.use(
   })
 );
 
-app.get("/", (req, res) => {
-  console.log(req.session.user);
-  console.log(req.session); 
-    res.render("pages/home.ejs",{session: req.session.user});
+app.get("/", async (req, res) => {
+  const posts = [];
+
+  const posts_sql = `SELECT recipe_text, recipe_name, U.username, R.recipe_id FROM recipes R
+    JOIN users U ON R.user_id = U.user_id
+    WHERE R.is_posted = TRUE
+    ORDER BY R.recipe_id DESC
+    LIMIT 15
+  `
+
+  const recipes = await db.manyOrNone(posts_sql);
+  for (let i = 0; i < recipes.length; i++){
+    const recipe = recipes[i];
+    const likes = await db.manyOrNone("SELECT * FROM users_to_likes WHERE recipe_id = $1", [recipe.recipe_id]);
+
+    var user_has_liked = false;
+    if (req.session.user != undefined && req.session.user_id != undefined){
+      for (let j = 0; j < likes.length; j++){
+        if (likes[j].user_id == req.session.user.user_id){
+          user_has_liked = true;
+          break;
+        }
+      }
+    }
+
+    posts.push({
+      title: recipe.recipe_name,
+      author: recipe.username,
+      content: recipe.recipe_text,
+      likes: likes.length,
+      user_has_liked
+    })
+  }
+
+  console.log(posts);
+
+  res.render("pages/home.ejs", {session: req.session.user, posts});
 });
 
 app.get("/login", (req, res) => {
@@ -120,8 +153,6 @@ app.post("/login", async (req, res) => {
   }
 });
 
-// Authentication middleware.
-
 app.post("/register", async (req, res) => {
   const hash = await bcrypt.hash(req.body.password, 10);
   const query = 'INSERT INTO users(email, username, password) VALUES ($1,$2,$3)';
@@ -161,7 +192,7 @@ app.get("/register", (req, res) => {
     res.render("pages/register.ejs",{session: req.session.user});
 });
 
-const auth = (req, res, next) => {
+const auth = (req, res, next) => { //Authentication Middleware
   if (!req.session.user) {
     return res.redirect("/login");
   }
@@ -193,12 +224,13 @@ app.get("/kitchen", (req, res) => {
     .then((recipes) => {
       // Render the 'kitchen' page with the 'recipes' array and 'user_id'
       console.log('User ID:', req.session.user.user_id);
-      res.render('pages/kitchen', { recipes, session: req.session.user, user_id: req.session.user.user_id, display_recipe_index: req.query.recipe_index, bedrockreturn: null });
+      res.render('pages/kitchen', { recipes, session: req.session.user, user_id: req.session.user.user_id, display_recipe_index: req.query.recipe_index, bedrockreturn: null, restrictionChoice: 'restricted' });
 
     })
     .catch((err) => {
       res.render("pages/kitchen", {
         recipes: [],
+        restrictionChoice: 'restricted',
         error: true,
         message: err.message,
         session: req.session.user,
@@ -213,81 +245,7 @@ app.get("/kitchen", (req, res) => {
 //Promting claude withe user promt and ingredients(if specified)
 //Updating the kitchen page with the generated recipe
 
-app.post('/kitchen/create', async (req, res) => {
-  const prompt = req.body.prompt; 
-  const user_id = req.session.user.user_id; 
-  // TODO: Figure out how to get if it's started
-  const is_starred = false;
-  const restrictionChoice = req.body.isRestricted;
-  const isRestricted = restrictionChoice === 'pantry_true';
-  let query;
 
-  // if isRestricted then use the ingredients
-  if(isRestricted === true)
-  {
-    try{
-    const ingredients = await db.any('SELECT ingredients.ingredient_text FROM ingredients INNER JOIN users_to_ingredients ON ingredients.ingredient_id = users_to_ingredients.ingredient_id WHERE users_to_ingredients.user_id = $1', [user_id])
-    query = `
-    Generate a recipe that aligns with the user's input and ingredient preferences. User's input: "${prompt}". The recipe should only utilize ingredients from this list: ${ingredients}. Format the output as JSON, structured with keys for the recipe name and the recipe details, as shown below:
-    
-    {
-      "recipeName": "<Name of the Recipe>",
-      "recipeDetails": "<Detailed Recipe Instructions>"
-    }
-    `;
-    } catch(error){
-      console.error("Error:", error);
-      return res.status(407).json({ message: "Error querying ingredients", error: error });
-    };
-  }else{
-    // restricted is not selected so we won't need to use ingredients
-    query = `
-    Generate a recipe based on the user's input: "${prompt}".
-    Output should be in JSON format, containing keys for both the recipe name and the recipe details. Structure the response as follows:
-    
-    {
-      "recipeName": "<Name of the Recipe>",
-      "recipeDetails": "<Detailed Recipe Instructions>"
-    }
-    `
-  }
-
-  try {
-    const params = {
-      accept: 'application/json',
-      body: JSON.stringify({
-        prompt: query
-      }),
-      contentType: 'application/json',
-      modelId: 'anthropic.claude-instant-v1', // could be replaced with claude v2, we'll see what works best :)
-    };
-
-  const bedrockResult = await bedrock.invokeModel(params).promise();
-
-  // TODO console log the result to determine how to access specific data in JSON the below text and name may be collected incorectly
-  const recipe_text = bedrockResult.recipeDetails;
-  const recipe_name = bedrockResult.recipeName;
-
-  // Insert the new recipe into the recipes table
-  const newRecipe = await db.one('INSERT INTO recipes (recipe_text, recipe_name, user_id, is_starred) VALUES ($1, $2, $3, $4) RETURNING *', [recipe_text, recipe_name, user_id, is_starred]);
-  
-  const bedrockreturn = {
-    recipeName: recipe_name,
-    recipeDetails: recipe_text
-  };
-
-  // Render the kitchen page with the Bedrock API response data
-  res.render("pages/kitchen", { bedrockreturn: bedrockreturn });
-    return;
-  } catch (error) {
-      console.error('Error creating recipe:', error);
-      res.status(408).json({
-          success: false,
-          message: 'Error creating recipe',
-          error: error.message,
-      });
-  }
-});
 
 
 app.put('/kitchen/update/:recipeId', async (req, res) => {
@@ -304,6 +262,23 @@ app.put('/kitchen/update/:recipeId', async (req, res) => {
     res.status(500).json({ error: 'Internal server error' });
   }
 });
+
+app.post('/kitchen/delete/:recipeId', async (req, res) => {
+  const recipeId = req.params.recipeId;
+  console.log('Kitchen Delete');
+  console.log('Recipe ID', recipeId);
+
+  try {
+    deleteQuery = `DELETE FROM recipes WHERE recipe_id = $1`;
+    await db.none(deleteQuery, [recipeId]);
+    res.redirect('/kitchen');
+
+  } catch (error) {
+    console.error('Error deleting recipe:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
 
 app.get('/welcome', (req, res) => {
   res.json({status: 'success', message: 'Welcome!'});
@@ -416,9 +391,9 @@ app.post('/pantry/search', async (req, res) => {
     });
 });
 
-app.post('/social/like', async (req, res) => {
-  var like_query = `INSERT INTO recipe_likes (recipe_id, user_id)
-                    VALUES ($2, $1)
+app.post("/api/like", async (req, res) => {
+  var like_query = `INSERT INTO users_to_likes (user_id, recipe_id)
+                    VALUES ($1, $2)
                     WHERE NOT EXISTS (
                       SELECT 1 FROM recipe_likes
                       WHERE recipe_id = $2 
@@ -426,17 +401,9 @@ app.post('/social/like', async (req, res) => {
                     );`;
   var updated_likes = await db.none(like_query, [req.session.user.user_id, req.body.recipe_id]);
 });
+app.post("/api/unlike", async (req, res) => {
 
-app.post('/social/like', async (req, res) => {
-  var like_query = `INSERT INTO recipe_likes (recipe_id, user_id)
-                    VALUES ($2, $1)
-                    WHERE NOT EXISTS (
-                      SELECT 1 FROM recipe_likes
-                      WHERE recipe_id = $2 
-                      AND user_id = $1
-                    );`;
-  var updated_likes = await db.none(like_query, [req.session.user.user_id, req.body.recipe_id]);
-});
+}); //todo
 
 app.post('/pantry/search', async (req, res) => {
   var search_ingredients = 
@@ -472,7 +439,8 @@ app.post('/pantry/search', async (req, res) => {
 
 app.get('/settings', async (req, res) => {
   const user_id = req.session.user.user_id;
-
+  let message = null;
+  message = req.query.msg; 
   try {
     const query1 = 'SELECT username FROM users WHERE user_id = $1';
     const query2 = 'SELECT d_restric FROM users WHERE user_id = $1';
@@ -487,9 +455,10 @@ app.get('/settings', async (req, res) => {
     const dietaryRestrictions = data[1].d_restric;
 
     res.render('pages/settings.ejs', {
-      username: username,
-      res: dietaryRestrictions,
-      session: req.session.user
+      currentUsername: username,
+      currentDietaryRestrictions: dietaryRestrictions,
+      session: req.session.user,
+      message: message 
     });
   } catch (err) {
     console.error('Error fetching data:', err);
@@ -513,80 +482,206 @@ app.get("/favorites", async (req, res) => {
       });
 });
 
-
-
-
-app.post('/settings', async (req, res) =>{
-  // Check if req.body.username is valid before updating
-const newUsername = req.body.username;
-const restric = req.body.d_res; 
-console.log("Body username:");
-console.log(req.body.username); 
-console.log("Body restrictions:");
-console.log(req.body.d_res); 
-
-if ( (!newUsername || newUsername.trim() === '') && (!restric || restric.trim() === '') ) {
-  return res.redirect('/settings'); 
-} 
-
-const alterU_query = `UPDATE users SET username = '${newUsername}' WHERE user_id = ${req.session.user.user_id} RETURNING username;`;
-const alterR_query = `UPDATE users SET d_restric = '${restric}' WHERE user_id = ${req.session.user.user_id} RETURNING d_restric;`;
-
-let update = await db.task('get-everything', task => {
-    if (!newUsername && restric){
-      return task.one(alterR_query);
-    }
-    else if (!restric && newUsername){
-      return task.one(alterU_query);
-    }
-    else {
-      return task.batch([task.one(alterR_query), task.one(alterU_query)]);
-    }
-  })
-    // if query execution succeeds
-    // query results can be obtained
-    // as shown below
-    .then(data => {
-      console.log(data); 
-
-      res.status(200);/*.json({
-        current_user: data[0],
-        city_users: data[1],
-      });*/ 
-      return res.redirect('/settings'); 
-    })
-    // if query execution fails
-    // send error message
-    .catch(err => {
-      console.log('Uh Oh spaghettio');
-      console.log(err);
-      res.status('400').json({
-        error: err,
-      });
-      res.redirect('/'); 
+app.post('/kitchen/create', async (req, res) => {
+  const prompt = req.body.prompt; 
+  const user_id = req.session.user.user_id; 
+  // TODO: Figure out how to get if it's started
+  const is_starred = false;
+  const restrictionChoice = req.body.isRestricted;
+  const restricted = restrictionChoice === 'restricted';
+  let query;
+  
+  const dietaryRestrictions = await db.one(' SELECT users.d_restric FROM users WHERE users.user_id = $1 ', [user_id]);
+  // if isRestricted then use the ingredients 
+  if(restricted === true)
+  {
+    try{
+    const ingredients = await db.any('SELECT ingredients.ingredient_text FROM ingredients INNER JOIN users_to_ingredients ON ingredients.ingredient_id = users_to_ingredients.ingredient_id WHERE users_to_ingredients.user_id = $1', [user_id]);
+    ingredients.forEach(ingredient => {
+      console.log(ingredient.ingredient_text);
     });
 
+    const ingredientTexts = ingredients.map(ingredient => ingredient.ingredient_text).join(", ");
+    console.log("Comma-separated ingredients: " + ingredientTexts);
+
+    query = `\n\nHuman: 
+    Generate a recipe that aligns with the user's input and ingredient preferences. User's input: "${prompt}". 
+    The recipe must only utilize ingredients from the following list. Do not return a recipe that uses ingredients that are not present in the list.
+    If there are not enough ingredients in the list then return "Not enough ingredients". Ingredient list: ${ingredientTexts}.
+    The recipe must also comply with the following dietary restrictions: ${dietaryRestrictions.d_restric}.
+    Output should include only the recipe instructions and ingredients. Don't add an introductory statement like " Here is a pasta recipe:"
+    \n\nAssistant:
+    `;
+
+    } catch(error){
+      console.error("Error:", error);
+      return res.status(407).json({ message: "Error querying ingredients", error: error });
+    };
+  }else{
+    // restricted is not selected so we won't need to use ingredients
+    query = `\n\nHuman: 
+    Generate a recipe based on the user's input: "${prompt}".
+    Output must include only the recipe instructions and ingredients. Don't add an introductory statement like " Here is a pasta recipe:"
+    The recipe must also comply with the following dietary restrictions: ${dietaryRestrictions.d_restric}.
+
+    \n\nAssistant:
+    `
+  }
+  try {
+    const params = {
+      modelId: "anthropic.claude-v2",
+      contentType: "application/json",
+      accept: "application/json",
+      body: JSON.stringify({
+        prompt: query,
+        max_tokens_to_sample: 4000,
+        temperature: 0.5,
+        top_k: 250,
+        top_p: 1,
+        stop_sequences: [
+          "\n\nHuman:"
+        ],
+        anthropic_version: "bedrock-2023-05-31"
+      })
+    };
+
+  const bedrockReturn = await bedrock.invokeModel(params).promise();
+  
+  const buffer = Buffer.from(bedrockReturn.body);
+
+    // Convert the buffer to a string
+  const responseString = buffer.toString('utf-8');
+  const responseJSON = JSON.parse(responseString);
+  const recipe_text = responseJSON.completion;
+
+  // TODO console log the result to determine how to access specific data in JSON the below text and name may be collected incorectly
+  
+
+  const query1 = `\n\nHuman: 
+  Generate a recipe name based on this recipe: "${recipe_text}".
+  Only response with a recipe name. Don't add an introductory statement like "Here is a generated recipe name based on the ingredients and instructions:"
+  \n\nAssistant:
+  `
+  // give the recipe a name
+  const nameParams = {
+    modelId: "anthropic.claude-instant-v1",
+    contentType: "application/json",
+    accept: "application/json",
+    body: JSON.stringify({
+      prompt: query1,
+      max_tokens_to_sample: 1000,
+      temperature: 0.5,
+      top_k: 250,
+      top_p: 1,
+      stop_sequences: [
+        "\n\nHuman:"
+      ],
+      anthropic_version: "bedrock-2023-05-31"
+    })
+  };
+
+  const bedrockReturn1 = await bedrock.invokeModel(nameParams).promise();
+  const buffer1 = Buffer.from(bedrockReturn1.body);
+
+  // Convert the buffer to a string
+  const responseString1 = buffer1.toString('utf-8');
+  const responseJSON1 = JSON.parse(responseString1);
+  const recipe_name = responseJSON1.completion;
+
+  // Insert the new recipe into the recipes table
+  await db.one('INSERT INTO recipes (recipe_text, recipe_name, user_id, is_starred) VALUES ($1, $2, $3, $4) RETURNING *', [recipe_text, recipe_name, user_id, is_starred]);
+  
+  const bedrockreturn = {
+    recipeName: recipe_name,
+    recipeDetails: recipe_text
+  };
+
+  // Render the kitchen page with the Bedrock API response data
+  const recipes = await db.any("SELECT * FROM recipes WHERE user_id = $1 ORDER BY recipe_id DESC LIMIT 10", [user_id])
+  res.render("pages/kitchen", { recipes, bedrockreturn: bedrockreturn, session: req.session.user, user_id: user_id, restrictionChoice: restrictionChoice});
+  return;
+  } catch (error) {
+      console.error('Error creating recipe:', error);
+      res.status(408).json({
+          success: false,
+          message: 'Error creating recipe',
+          error: error.message,
+      });
+  }
 });
-/*var update = await db.oneOrNone(alter_query, [newUsername, req.session.user.user_id])
-  .then(function (data) {
-    if (data) {
-      console.log(data);
-      console.log("Updated Username: ", data.username);
-      // Return/render the updated username
-      return res.redirect('/settings');
-    } else {
 
-      console.log("Username update failed or no data returned.");
-      return res.redirect('/settings');
+
+app.post('/settings', async (req, res) => {
+  const newUsername = req.body.username;
+  const restric = req.body.d_res;
+  const userId = req.session.user.user_id
+  if ((!newUsername || newUsername.trim() === '') && (!restric || restric.trim() === '')) {
+    return res.redirect('/settings?msg=No empty usernames');
+  }
+  if ((!newUsername || newUsername.trim() === '')) {
+    return res.redirect('/settings?msg=No empty usernames');
+  }
+
+  if (newUsername.includes(' ')) {
+    return res.redirect('/settings?msg=Username cannot contain spaces');
+  } 
+
+  getCurrentUsername = 'SELECT username from users where user_id = $1'
+  const currentUsernameResult = await db.one(getCurrentUsername, [userId]);
+  const currentUsername = currentUsernameResult.username;
+
+  try {
+    if(currentUsername != newUsername){
+      const checkQuery = "SELECT * FROM users WHERE username = $1";
+      const check = await db.oneOrNone(checkQuery, [newUsername]);
+      if (check) {
+        return res.redirect('/settings?msg=Username already exists');
+      }
     }
-  })
-  .catch(function (err) {
-    console.error("Error updating username: ", err);
-    return res.redirect('/settings');
+    let updateQuery;
+    let queryParameters;
 
-  });
- 
-});*/
+    if (!restric || restric.trim() === '') {
+      updateQuery = `UPDATE users SET username = $1, d_restric = NULL WHERE user_id = $2 RETURNING username, d_restric`;
+      queryParameters = [newUsername, userId];
+    } else {
+      updateQuery = `UPDATE users SET username = $1, d_restric = $2 WHERE user_id = $3 RETURNING username, d_restric`;
+      queryParameters = [newUsername, restric, userId];
+    }
+    
+    const updateResult = await db.one(updateQuery, queryParameters);
+    
+    res.render('pages/settings.ejs', {
+      currentUsername: updateResult.username || newUsername || currentUsername,
+      currentDietaryRestrictions: updateResult.d_restric || '',
+      session: req.session.user,
+      message: "Settings updated successfully"
+    });
+
+    // return res.redirect('/settings');
+  } catch (error) {
+    console.log('Error:', error);
+    return res.status(400).json({ error: error.message });
+  }
+});
+
+
+app.post('/kitchen/update/:recipeId', async (req, res) => {
+
+      const recipeId = req.params.recipeId;
+      const { recipeName, recipeText, isStarred } = req.body;
+      stared = (isStarred === 'on' ? true : false);
+      try {
+          const updateQuery = 'UPDATE recipes SET recipe_name = $1, recipe_text = $2, is_starred = $3 WHERE recipe_id = $4 RETURNING *';
+          await db.one(updateQuery, [recipeName, recipeText, stared, recipeId]);
+          res.redirect('/kitchen'); 
+      } catch (error) {
+          console.error('Error updating recipe:', error);
+          res.status(500).send('Internal server error');
+      }
+});
+
+
 
 app.get("/logout", (req, res) => {
   req.session.destroy();
