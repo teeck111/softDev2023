@@ -83,7 +83,7 @@
                                 <% recipes.slice(0,10).forEach(function(recipe, r_index) { %> 
                                     <tr> 
                                         <td class="row"> 
-                                            <a class="hover-dark" data-bs-toggle="modal" data-bs-target="#recipeModal<%= recipe.recipe_id %>" id="recipeLink<%= recipe.recipe_id %>">
+                                            <a class="hover-dark" data-bs-toggle="modal" data-bs-target="#recipeModal<%= recipe.recipe_id %>" style="cursor: pointer" id="recipeLink<%= recipe.recipe_id %>">
                                                 <%= recipe.recipe_name %>
                                             </a>
                                              
@@ -104,7 +104,7 @@
                                                     </div>
                                                     <div class="mb-3">
                                                         <label for="recipeText" class="form-label">Recipe Text:</label>
-                                                        <textarea class="form-control" name="recipeText" rows="4" required><%= recipe.recipe_text %></textarea>
+                                                        <textarea class="form-control" name="recipeText" rows="4" required><%= recipe.recipe_text.replaceAll("\\n", "\n") %></textarea>
                                                     </div>
                                                     <div class="mb-3 form-check">
                                                         <input type="checkbox" class="form-check-input" name="isStarred" <% if (recipe.is_starred) { %> checked <% } %>>
