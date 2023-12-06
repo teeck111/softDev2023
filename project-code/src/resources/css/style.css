@@ -34,7 +34,7 @@ body {
 h3 {
     font-size: 40px;
     margin-bottom: 15px;
-    color: #ffff;
+    color: #5D432C;
 }
 .h3title {
     font-size: 40px;
@@ -179,15 +179,24 @@ a {
 
 .f {
     font-family: 'Cochin', serif;
-    background-color: #48413b !important;
+    background-color: #fff !important;
     border-radius: 5px;
     padding: 35px;
     color: #FFFDF7;
     font-size: 2vw;
 }
 
+.e {
+    font-family: 'Cochin', serif;
+    background-color: #fff !important;
+    border-radius: 5px;
+    padding: 35px;
+    color: #5D432C;
+    font-size: 2vw;
+}
+
 .pan {
-    background-color: #8B6B4A !important;
+    background-color: #48413b !important;
 }
 
 
@@ -248,4 +257,16 @@ a {
 
 .norecipe {
     color: #FFF;
+}
+
+.accordion-item{
+    background-color: #F4E9E2;
+}
+
+.recName {
+    color: #48413b;
+}
+
+.ingedientitem {
+    color: #48413b;
 }
