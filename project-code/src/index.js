@@ -158,22 +158,24 @@ app.post("/login", async (req, res) => {
 });
 
 app.post("/register", async (req, res) => {
+   if (req.body.email == undefined || req.body.password == undefined || req.body.email.length == 0 || req.body.password.length < 8 || !(/^.+@.+\..+$/.test(req.body.email))){
+      res.status(400).render("pages/register", {session: req.session.user, message: "Please enter a valid username and password.",  error: true});
+      return true;
+  }
+
+
   const hash = await bcrypt.hash(req.body.password, 10);
   const query = 'INSERT INTO users(email, username, password) VALUES ($1,$2,$3)';
   console.log(req.body.email)
   const query2 = `SELECT * FROM users WHERE email = $1;`
-  let email = null;
-  email = req.body.email; 
-  if(!email || !hash){
-    res.status(400); 
-    return res.render('/register', {session: req.session.user, message: "Email or password invalid"}); 
-  }
+  
   const check_exist = await db.any(query2, [req.body.email])
   if (check_exist.length > 0){
     res.render('pages/login', {session: req.session.user})
     return
   }
-  
+
+    res.redirect("/login")
   
     db.any(query, [
       req.body.email,
@@ -182,7 +184,6 @@ app.post("/register", async (req, res) => {
 
 
     ])    
-    res.redirect("/login")
 
   //})
   
