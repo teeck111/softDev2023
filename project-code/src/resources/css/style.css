@@ -225,17 +225,15 @@ a {
 }
 
 .btn-kitchen-toggle:hover {
-    background-color: #A67B5B; /* Example background color on hover */
-    color: #FFFDF7; /* Example text color on hover */
-    /* Add any other property you'd like to change on hover */
-    cursor: pointer; /* Change cursor to indicate clickable item */
+    background-color: #A67B5B;
+    color: #FFFDF7;
+    cursor: pointer; 
 }
 
 
 .btn-check:checked + .btn-kitchen-toggle {
-    background-color: #5D432C; /* or any color you want for the selected state */
-    color: #FFFDF7; /* text color for the selected state */
-    /* any other styles you want to apply to the selected button */
+    background-color: #5D432C; 
+    color: #FFFDF7; 
 }
 
 .accordion-button:not(.collapsed){
