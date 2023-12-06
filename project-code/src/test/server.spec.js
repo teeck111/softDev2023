@@ -58,7 +58,7 @@ describe('Server!', () => {
     it('positive: /register', (done) => {
   chai.request(server)
     .post('/register')
-    .send({ email: 'example@example.com', username: 'tyler', password: 'tk' }) 
+    .send({ email: 'example@example.com', username: 'tyler', password: 'tk1234123' }) 
     .end((err, res) => {
       expect(res).to.have.status(200);
       // Add assertions for successful registration
