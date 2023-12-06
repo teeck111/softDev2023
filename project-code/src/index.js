@@ -61,6 +61,10 @@ app.use(
 );
 
 app.get("/", async (req, res) => {
+  const totalRecipesQuery = 'SELECT COUNT(*) AS total_recipes FROM recipes';
+  const totalRecipesResult = await db.one(totalRecipesQuery);
+  const totalRecipesCount = totalRecipesResult.total_recipes;
+  
   const posts = [];
 
   const posts_sql = `SELECT recipe_text, recipe_name, U.username, R.recipe_id FROM recipes R
@@ -96,7 +100,7 @@ app.get("/", async (req, res) => {
 
   console.log(posts);
 
-  res.render("pages/home.ejs", {session: req.session.user, posts});
+  res.render("pages/home.ejs", {session: req.session.user, posts, totalRecipesCount});
 });
 
 app.get("/login", (req, res) => {
