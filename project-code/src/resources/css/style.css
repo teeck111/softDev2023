@@ -238,6 +238,9 @@ a {
     color: #F4E9E2 !important;
 }
 
-.accordion-item {
-    
+.navigation {
+    font-family: 'Cochin', serif;
+    font-size: 20px;
+    color: #5D432C;
 }
+
