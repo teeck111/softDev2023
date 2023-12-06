@@ -7,16 +7,16 @@
             <div class="col-6">
                 <table>
                     <tr>
-                        <th style="font-size:x-large">Your Ingredients</th>
+                        <th style="font-size:x-large; color: #48413b;">Your Ingredients</th>
                     </tr>
                 </table>
-                <div style="overflow: auto; max-height: 75vh; border: 2px solid; border-color: rgb(25, 138, 27); padding: 10px;">
+                <div style="overflow: auto; max-height: 75vh; border: 2px solid; border-color: #48413b; padding: 10px;">
                     <table>
                     <% var table_rows = '';
                         ingredients.forEach(function(item){
-                            table_rows += `<tr><td>${item.ingredient_text}</td>
+                            table_rows += `<tr><td class="ingedientitem">${item.ingredient_text}</td>
                                 <td><form action="/pantry/delete" method="POST">
-                                    <input type="submit" value="REMOVE" class="btn btn-outline-success" style="background-color:#06410e"/>
+                                    <input type="submit" value="REMOVE" class="btn-kitchen-create"/>
                                     <input type="hidden" name="ingredient_id" value="${item.ingredient_id}">
                                 </form></td></tr>`;
                         });
@@ -37,7 +37,7 @@
                             <div class="form-group">
                                 <label for="search_val">Find an Ingredient</label>
                                 <input type="search_val" class="form-control" name="search_val" value="<%= searchbar_val %>">
-                                <button type="submit" class="btn btn-outline-success">Search</button>
+                                <button type="submit" class="btn-kitchen-create">Search</button>
                             </div>
                             <!-- <div class="row mb-3">   
                                 <div class="col-9">
@@ -55,14 +55,14 @@
                         <th style="font-size:x-large">Available Ingredients</th>
                     </tr>
                     </table>
-                        <div style="overflow: auto; max-height: 50vh; border: 2px solid rgb(22, 119, 19); padding: 10px;">
+                        <div style="overflow: auto; max-height: 50vh; border: 2px solid #8B6B4A; padding: 10px;">
                             <table>
                             <tr>
                                 <% var table_rows = '';
                                 unused_ingredients.forEach(function(item){
                                     table_rows += `<tr><td>${item.ingredient_text}</td>
                                         <td><form action="/pantry/add" method="POST">
-                                            <input type="submit" value="ADD" class="btn btn-outline-success"/>
+                                            <input type="submit" value="ADD" class="btn-kitchen-create"/>
                                             <input type="hidden" name="ingredient_id" value="${item.ingredient_id}">
                                         </form></td></tr>`;
                                 });

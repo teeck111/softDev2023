@@ -196,7 +196,7 @@ a {
 }
 
 .pan {
-    background-color: #8B6B4A !important;
+    background-color: #48413b !important;
 }
 
 
@@ -264,5 +264,9 @@ a {
 }
 
 .recName {
+    color: #48413b;
+}
+
+.ingedientitem {
     color: #48413b;
 }
