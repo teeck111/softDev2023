@@ -660,6 +660,18 @@ app.post('/kitchen/update/:recipeId', async (req, res) => {
       }
 });
 
+app.post('/kitchen/postRecipe', async (req, res) => {
+  const recipeId = req.body.recipeId;
+  console.log("it could be postin")
+  try {
+      const updateQuery = 'UPDATE recipes SET is_posted = TRUE WHERE recipe_id = $1';
+      await db.none(updateQuery, [recipeId]);
+      res.redirect('/kitchen');
+  } catch (error) {
+      console.error('Error updating recipe:', error);
+      res.status(500).send('Internal server error');
+  }
+});
 
 
 app.get("/logout", (req, res) => {

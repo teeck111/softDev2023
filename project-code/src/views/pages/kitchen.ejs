@@ -115,12 +115,17 @@
                                                         <input type="checkbox" class="form-check-input" name="isStarred" <% if (recipe.is_starred) { %> checked <% } %>>
                                                         <label class="form-check-label" for="favoriteRecipe">Favorite Recipe</label>
                                                     </div>
-                                                    <div class="modal-footer">
-                                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                                                        <button type="submit" class="btn btn-primary">Save Changes</button>
-                                                        <button type="button" class="btn btn-primary" formaction="/kitchen/post">Post</button>
-                                                    </div>
                                                 </form>
+                                                <div class="modal-footer">
+                                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                                    <button type="submit" class="btn btn-primary">Save Changes</button>
+                                                    <% if (!recipe.is_posted) { %>
+                                                        <form action="/kitchen/postRecipe" method="post">
+                                                            <input type="hidden" name="recipeId" value="<%= recipe.recipe_id %>">
+                                                            <button type="submit" class="btn btn-primary">Post</button>
+                                                        </form>
+                                                    <% } %>
+                                                </div>
                                             </div>
                                           </div>
                                         </div>
