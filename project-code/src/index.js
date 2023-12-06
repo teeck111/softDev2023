@@ -162,29 +162,26 @@ app.post("/register", async (req, res) => {
   const query = 'INSERT INTO users(email, username, password) VALUES ($1,$2,$3)';
   console.log(req.body.email)
   const query2 = `SELECT * FROM users WHERE email = $1;`
-
+  let email = null;
+  email = req.body.email; 
+  if(!email || !hash){
+    res.status(400); 
+    return res.render('/register', {session: req.session.user, message: "Email or password invalid"}); 
+  }
   const check_exist = await db.any(query2, [req.body.email])
   if (check_exist.length > 0){
     res.render('pages/login', {session: req.session.user})
     return
   }
-  /*db.one(query2)
-  .then(function(){
-    //res.redirect('/login');
-    res.render("pages/register");
-  })
-  .catch(error => {*/
-    //console.log('b')
-    //console.log(error)
-    
+  
+  
     db.any(query, [
       req.body.email,
       'default user',
       hash
 
 
-    ])
-    
+    ])    
     res.redirect("/login")
 
   //})
@@ -285,7 +282,7 @@ app.post('/kitchen/delete/:recipeId', async (req, res) => {
 
 
 app.get('/welcome', (req, res) => {
-  res.json({status: 'success', message: 'Welcome!'});
+  res.status(200);
 });
 
 app.get("/api/posts_feed", (req, res) => { //placeholder api for posts 
@@ -679,5 +676,5 @@ app.get("/logout", (req, res) => {
   res.redirect("/")
 });
 
-app.listen(3000);
+module.exports = app.listen(3000);
 console.log("Server listening on port 3000"); 
