@@ -54,10 +54,11 @@
 
                                         <div class="btn-group kitch" role="group" aria-label="Basic radio toggle button group">
                                             <input type="radio" class="btn-check" name="isRestricted" id="pantry_true" value="restricted" autocomplete="off" <% if (restrictionChoice === 'restricted') { %>checked<% } %>>
-                                            <label class="btn btn-kitchen-toggle" id="pantryT" for="pantry_true">Pantry</label>
-                                        
+                                            <label class="btn btn-kitchen-toggle" for="pantry_true">Pantry</label>
+                                            
                                             <input type="radio" class="btn-check" name="isRestricted" id="pantry_false" value="unrestricted" autocomplete="off" <% if (restrictionChoice === 'unrestricted') { %>checked<% } %>>
-                                            <label class="btn btn-kitchen-toggle" id="pantryF" for="pantry_false">No-Pantry</label>
+                                            <label class="btn btn-kitchen-toggle" for="pantry_false">No-Pantry</label>
+                                            
                                         </div>
                                     </form>
                                 </td>
@@ -82,16 +83,17 @@
                                     <tr> 
                                         <td class="row"> 
                                             <div class="col-8">
-                                                <a class="hover-dark" style="cursor: pointer" data-bs-toggle="modal" data-bs-target="#recipeModal<%= recipe.recipe_id %>" id="recipeLink<%= recipe.recipe_id %>">
+                                                <a class="hover-dark" data-bs-toggle="modal" data-bs-target="#recipeModal<%= recipe.recipe_id %>" id="recipeLink<%= recipe.recipe_id %>">
                                                     <%= recipe.recipe_name %>
                                                 </a>
                                             </div> 
                                             <div class="col-4">
-                                            <form action="/kitchen/delete/<%= recipe.recipe_id %>" method="post">
-                                                <button type="submit" class="btn btn-outline-danger" style="--bs-btn-padding-y: .25rem; --bs-btn-padding-x: .5rem; --bs-btn-font-size: .75rem;">
-                                                    Delete
-                                                </button>
-                                            </form>  
+                                                <form action="/kitchen/delete/<%= recipe.recipe_id %>" method="post">
+                                                    <button type="submit" class="btn btn-outline-danger" style="--bs-btn-padding-y: .25rem; --bs-btn-padding-x: .5rem; --bs-btn-font-size: .75rem;">
+                                                        Delete
+                                                    </button>
+                                                </form>  
+                                            </div>
                                         <td> 
                                     </tr>        
                                     <div class="modal fade modal-wide" id="recipeModal<%= recipe.recipe_id %>" tabindex="-1" aria-labelledby="recipeModalLabel" aria-hidden="true">
@@ -109,30 +111,34 @@
                                                     </div>
                                                     <div class="mb-3">
                                                         <label for="recipeText" class="form-label">Recipe Text:</label>
-                                                        <textarea class="form-control" name="recipeText" rows="4" required><%= recipe.recipe_text.replaceAll("\\n", "\n") %></textarea>
+                                                        <textarea class="form-control" name="recipeText" rows="4" required><%= recipe.recipe_text %></textarea>
                                                     </div>
                                                     <div class="mb-3 form-check">
                                                         <input type="checkbox" class="form-check-input" name="isStarred" <% if (recipe.is_starred) { %> checked <% } %>>
                                                         <label class="form-check-label" for="favoriteRecipe">Favorite Recipe</label>
                                                     </div>
+                                                    <div class="modal-footer">
+                                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                                        <button type="submit" class="kitch btn btn-kitchen-create">Save Changes</button>
+                                                    </div>
                                                 </form>
-                                                <div class="modal-footer">
-                                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                                                    <button type="submit" class="btn btn-primary">Save Changes</button>
-                                                    <% if (!recipe.is_posted) { %>
+
+                                                <% if (!recipe.is_posted) { %>
+                                                    <center>
                                                         <form action="/kitchen/postRecipe" method="post">
                                                             <input type="hidden" name="recipeId" value="<%= recipe.recipe_id %>">
-                                                            <button type="submit" class="btn btn-primary">Post</button>
+                                                            <button type="submit" class="btn-kitchen-create" style=" width: 120px;">Post</button>
                                                         </form>
-                                                    <% } %>
-                                                </div>
+                                                    </center>
+                                                <% } %>
+
                                             </div>
                                           </div>
                                         </div>
                                       </div>                                
                                 <% }); %> 
                         <% } else { %> 
-                            <tr><td>No recipes found</td></tr> 
+                            <tr><td class="td norecipe">No recipes found</td></tr> 
                
                         <% } %> 
                             </tbody>

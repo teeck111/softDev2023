@@ -216,9 +216,8 @@ a {
 }
 
 .btn-kitchen-toggle {
-    color: #5D432C; 
-    background-color: #F4E9E2; 
-    border: 2px solid #A67B5B; 
+    color: #ffff;  
+    border: 2px solid #ffff; 
     padding: 10px 20px;
     margin-right: 5px; 
     border-radius: 5px; 
@@ -226,22 +225,17 @@ a {
 }
 
 .btn-kitchen-toggle:hover {
-    color: #FFFDF7;
-    background-color: #A67B5B;
+    background-color: #A67B5B; /* Example background color on hover */
+    color: #FFFDF7; /* Example text color on hover */
+    /* Add any other property you'd like to change on hover */
+    cursor: pointer; /* Change cursor to indicate clickable item */
 }
 
-.btn-kitchen-toggle:active, 
-.btn-kitchen-toggle:focus {
-    color: #FFFDF7;
-    background-color: #8B6B4A;
-    border-color: #5D432C;
-    box-shadow: 0 0 0 0.25rem rgb(169 123 91 / 50%);
-}
 
-.btn-kitchen-toggle:disabled {
-    color: #A67B5B;
-    background-color: #EDE0D4;
-    border-color: #C9A87C;
+.btn-check:checked + .btn-kitchen-toggle {
+    background-color: #5D432C; /* or any color you want for the selected state */
+    color: #FFFDF7; /* text color for the selected state */
+    /* any other styles you want to apply to the selected button */
 }
 
 .accordion-button:not(.collapsed){
@@ -254,3 +248,6 @@ a {
     color: #5D432C;
 }
 
+.norecipe {
+    color: #FFF;
+}
