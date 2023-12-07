@@ -88,9 +88,11 @@ app.get("/", async (req, res) => {
         }
       }
     }
-
+    console.log(user_has_liked);
+    console.log(likes);
     posts.push({
       title: recipe.recipe_name,
+      recipe_id: recipe.recipe_id,
       author: recipe.username,
       content: recipe.recipe_text,
       likes: likes.length,
@@ -98,7 +100,7 @@ app.get("/", async (req, res) => {
     })
   }
 
-  console.log(posts);
+  // console.log(posts);
 
   res.render("pages/home.ejs", {session: req.session.user, posts, totalRecipesCount});
 });
@@ -391,26 +393,28 @@ app.post('/pantry/search', async (req, res) => {
     });
 });
 
-app.post("/api/like", async (req, res) => {
+app.post("/like", async (req, res) => {
   var like_query = `INSERT INTO users_to_likes (user_id, recipe_id)
-                    VALUES ($1, $2)
+                    SELECT $1, $2
                     WHERE NOT EXISTS (
                       SELECT 1 FROM recipe_likes
-                      WHERE recipe_id = $2 
+                      WHERE recipe_id = $2
                       AND user_id = $1
                     );`;
   var updated_likes = await db.none(like_query, [req.session.user.user_id, req.body.recipe_id]);
+  return res.redirect("/");
 });
 
-app.post("/api/unlike", async (req, res) => {
+app.post("/unlike", async (req, res) => {
+  console.log(req.body.recipe_id);
   var unlike_query = `DELETE FROM 
                         users_to_likes
                       WHERE 
                         user_id = $1
                       AND
-                        recipe_id = $2
-                      );`;
+                        recipe_id = $2;`;
   var updated_likes = await db.none(unlike_query, [req.session.user.user_id, req.body.recipe_id]);
+  return res.redirect('/');
 }); //todo
 
 app.get('/settings', async (req, res) => {
