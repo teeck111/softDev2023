@@ -164,7 +164,6 @@ app.post("/register", async (req, res) => {
 
   const hash = await bcrypt.hash(req.body.password, 10);
   const query = 'INSERT INTO users(email, username, password) VALUES ($1,$2,$3)';
-  console.log(req.body.email)
   const query2 = `SELECT * FROM users WHERE email = $1;`
   
   const check_exist = await db.any(query2, [req.body.email])
@@ -223,7 +222,6 @@ app.get("/kitchen", (req, res) => {
   db.any(user_recipes, [req.session.user.user_id])
     .then((recipes) => {
       // Render the 'kitchen' page with the 'recipes' array and 'user_id'
-      console.log('User ID:', req.session.user.user_id);
       res.render('pages/kitchen', { recipes, session: req.session.user, user_id: req.session.user.user_id, display_recipe_index: req.query.recipe_index, bedrockreturn: null, restrictionChoice: 'restricted' });
 
     })
@@ -254,14 +252,11 @@ app.put('/kitchen/update/:recipeId', async (req, res) => {
 
   try {
     const updateQuery = 'UPDATE recipes SET recipe_name = $1, recipe_text = $2, is_starred = $3 WHERE recipe_id = $4 RETURNING *';
-    console.log(recipeName);
     const updatedRecipe = await db.one(updateQuery, [recipeName, recipeText, isStarred, recipeId]);
     
     if (originPage === 'favorites') {
-      console.log('favorites');
       res.redirect('/favorites');
     } else {
-      console.log('kitchen');
       res.redirect('/kitchen');
     }
 
@@ -273,9 +268,6 @@ app.put('/kitchen/update/:recipeId', async (req, res) => {
 
 app.post('/kitchen/delete/:recipeId', async (req, res) => {
   const recipeId = req.params.recipeId;
-  console.log('Kitchen Delete');
-  console.log('Recipe ID', recipeId);
-
   try {
     deleteQuery = `DELETE FROM recipes WHERE recipe_id = $1`;
     await db.none(deleteQuery, [recipeId]);
@@ -466,7 +458,6 @@ app.get("/favorites", async (req, res) => {
     .then((recipes) => {
       res.render('pages/favorites', { recipes, session: req.session.user, user_id: req.session.user.user_id,});
       // Render the 'favorites' page with the 'recipes' array and 'user_id'
-      console.log('User ID:', req.session.user.user_id);
 
     })
 
@@ -491,12 +482,8 @@ app.post('/kitchen/create', async (req, res) => {
   {
     try{
     const ingredients = await db.any('SELECT ingredients.ingredient_text FROM ingredients INNER JOIN users_to_ingredients ON ingredients.ingredient_id = users_to_ingredients.ingredient_id WHERE users_to_ingredients.user_id = $1', [user_id]);
-    ingredients.forEach(ingredient => {
-      console.log(ingredient.ingredient_text);
-    });
 
     const ingredientTexts = ingredients.map(ingredient => ingredient.ingredient_text).join(", ");
-    console.log("Comma-separated ingredients: " + ingredientTexts);
 
     query = `\n\nHuman: 
     Generate a recipe that aligns with the user's input and ingredient preferences. User's input: "${prompt}". 
@@ -670,10 +657,8 @@ app.post('/kitchen/update/:recipeId', async (req, res) => {
           await db.one(updateQuery, [recipeName, recipeText, stared, recipeId]);
           
           if (originPage === 'favorites') {
-            console.log('favorites');
             res.redirect('/favorites');
           } else {
-            console.log('kitchen');
             res.redirect('/kitchen');
           }
       } catch (error) {
@@ -685,16 +670,13 @@ app.post('/kitchen/update/:recipeId', async (req, res) => {
 app.post('/kitchen/postRecipe', async (req, res) => {
   const recipeId = req.body.recipeId;
   const originPage = req.body.originPage;
-  console.log("it could be postin")
   try {
       const updateQuery = 'UPDATE recipes SET is_posted = TRUE WHERE recipe_id = $1';
       await db.none(updateQuery, [recipeId]);
 
       if (originPage === 'favorites') {
-        console.log('favorites');
         res.redirect('/favorites');
       } else {
-        console.log('kitchen');
         res.redirect('/kitchen');
       }
     
