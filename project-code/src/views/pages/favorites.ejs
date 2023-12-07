@@ -17,7 +17,32 @@
         <div id="collapse<%= index + 1 %>" class="accordion-collapse collapse f" aria-labelledby="heading<%= index + 1 %>"
           data-bs-parent="#accordionExample">
           <div class="accordion-body e">
+            
             <%= item.recipe_text %>
+            <div class="row">
+              <div class="col-8">
+
+              </div>
+              <div class="col-2">
+                <form action="/kitchen/update/<%= item.recipe_id %>" method="post">
+                  <input type="hidden" name="_method" value="put">
+                  <input type="hidden" name="recipeName" value="<%= item.recipe_name %>">
+                  <input type="hidden" name="recipeText" value="<%= item.recipe_text %>">
+                  <input type="hidden" name="isStarred" value="<%= item.is_starred %>">
+                  <input type="hidden" name="originPage" value="favorites">
+                  <button type="submit" class="kitch btn btn-kitchen-create">
+                      Un-Favorite
+                  </button>
+                </form>
+              </div>
+              <div class="col-2">
+                <form action="/kitchen/postRecipe" method="post">
+                  <input type="hidden" name="recipeId" value="<%= item.recipe_id %>">
+                  <input type="hidden" name="originPage" value="favorites">
+                  <button type="submit" class="kitch btn btn-kitchen-create">Post</button>
+              </form>
+              </div>
+            </div>
           </div>
         </div>
       </div>

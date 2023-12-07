@@ -250,12 +250,20 @@ app.get("/kitchen", (req, res) => {
 
 app.put('/kitchen/update/:recipeId', async (req, res) => {
   const recipeId = req.params.recipeId;
-  const { recipeName, recipeText, isStarred } = req.body;
+  const { recipeName, recipeText, isStarred, originPage } = req.body;
 
   try {
     const updateQuery = 'UPDATE recipes SET recipe_name = $1, recipe_text = $2, is_starred = $3 WHERE recipe_id = $4 RETURNING *';
     console.log(recipeName);
     const updatedRecipe = await db.one(updateQuery, [recipeName, recipeText, isStarred, recipeId]);
+    
+    if (originPage === 'favorites') {
+      console.log('favorites');
+      res.redirect('/favorites');
+    } else {
+      console.log('kitchen');
+      res.redirect('/kitchen');
+    }
 
   } catch (error) {
     console.error('Error updating recipe:', error);
@@ -655,12 +663,19 @@ app.post('/settings', async (req, res) => {
 app.post('/kitchen/update/:recipeId', async (req, res) => {
 
       const recipeId = req.params.recipeId;
-      const { recipeName, recipeText, isStarred } = req.body;
+      const { recipeName, recipeText, isStarred, originPage } = req.body;
       stared = (isStarred === 'on' ? true : false);
       try {
           const updateQuery = 'UPDATE recipes SET recipe_name = $1, recipe_text = $2, is_starred = $3 WHERE recipe_id = $4 RETURNING *';
           await db.one(updateQuery, [recipeName, recipeText, stared, recipeId]);
-          res.redirect('/kitchen'); 
+          
+          if (originPage === 'favorites') {
+            console.log('favorites');
+            res.redirect('/favorites');
+          } else {
+            console.log('kitchen');
+            res.redirect('/kitchen');
+          }
       } catch (error) {
           console.error('Error updating recipe:', error);
           res.status(500).send('Internal server error');
@@ -669,11 +684,20 @@ app.post('/kitchen/update/:recipeId', async (req, res) => {
 
 app.post('/kitchen/postRecipe', async (req, res) => {
   const recipeId = req.body.recipeId;
+  const originPage = req.body.originPage;
   console.log("it could be postin")
   try {
       const updateQuery = 'UPDATE recipes SET is_posted = TRUE WHERE recipe_id = $1';
       await db.none(updateQuery, [recipeId]);
-      res.redirect('/kitchen');
+
+      if (originPage === 'favorites') {
+        console.log('favorites');
+        res.redirect('/favorites');
+      } else {
+        console.log('kitchen');
+        res.redirect('/kitchen');
+      }
+    
   } catch (error) {
       console.error('Error updating recipe:', error);
       res.status(500).send('Internal server error');
