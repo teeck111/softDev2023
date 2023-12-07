@@ -21,6 +21,7 @@ Access to the internet, Docker, the downloaded repository <br>
 
 
 # INSTRUCTIONS ON HOW TO RUN LOCALLY: 
+Must have an .env file with postgres user, db and password. Additionaly you need the AWS access key ID, AWS secret access key, and AWS_REGION.
 Open the folder and cd into project-code. Open docker and run docker-compose up. The application should then be available on your local host at port 3000. <br>
 
 
