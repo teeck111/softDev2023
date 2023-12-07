@@ -25,50 +25,52 @@
                     </table>
                 </div>
             </div>
-            <div class="pan col bg-success-subtle border-start border-4" style="max-height: 100%">
-                <table>
+            <div class="pan col bg-success-subtle border-start border-4" style="max-height: 100%;">
+                <table style="margin-top: 10px;">
                     <tr>
                         <th style="font-size:x-large">Add Ingredients</th>
                     </tr>
                     <tr>
                         <td>
-                        <form action="/pantry/search" method="POST" id="ingredient_search">
-                            <!-- <label for="search_val" class="col col-form-label">Find an Ingredient</label> -->
-                            <div class="form-group">
-                                <label for="search_val">Find an Ingredient</label>
-                                <input type="search_val" class="form-control" name="search_val" value="<%= searchbar_val %>">
-                                <button type="submit" class="btn-kitchen-create">Search</button>
-                            </div>
-                            <!-- <div class="row mb-3">   
-                                <div class="col-9">
-                                  <input type="text" class="form-control" id="seach_val" name="search_val">
+                            <form action="/pantry/uniqueadd" method="POST" style="display: flex; align-items: center; margin-bottom: 20px;">
+                                <div class="form-group" style="flex-grow: 1; margin-right: 10px;">
+                                    <input type="text" class="form-control" name="ingredient_name" placeholder="Enter ingredient">
                                 </div>
-                                <div class="col">
-                                  <button type="submit" class="btn btn-outline-success">Search</button>
-                              </div>
-                            </div> -->
-                            <!-- <button type="submit" class="btn btn-outline-success">Search</button> -->
-                        </form>
+                                <div>
+                                    <input type="submit" class="btn-kitchen-create" value="ADD">
+                                </div>
+                            </form>
                         </td>
                     </tr>
                     <tr>
-                        <th style="font-size:x-large">Available Ingredients</th>
+                        <th style="font-size:x-large">Quick Add Ingredients</th>
+                    </tr>
+                    <tr>
+                        <td>
+                            <form action="/pantry/search" method="POST" id="ingredient_search" style="display: flex; align-items: center; margin-bottom: 20px;">
+                                <div class="form-group" style="flex-grow: 1; margin-right: 10px;">
+                                    <input type="search_val" class="form-control" name="search_val" placeholder="Search ingredient" value="<%= searchbar_val %>" style="flex-grow: 1; margin-bottom: 0;">
+                                </div>
+                                <button type="submit" class="btn-kitchen-create">Search</button>
+                            </form>
+                            
+                        </td>
                     </tr>
                     </table>
                         <div style="overflow: auto; max-height: 50vh; border: 2px solid #8B6B4A; padding: 10px;">
                             <table>
-                            <tr>
-                                <% var table_rows = '';
-                                unused_ingredients.forEach(function(item){
-                                    table_rows += `<tr><td>${item.ingredient_text}</td>
-                                        <td><form action="/pantry/add" method="POST">
-                                            <input type="submit" value="ADD" class="btn-kitchen-create"/>
-                                            <input type="hidden" name="ingredient_id" value="${item.ingredient_id}">
-                                        </form></td></tr>`;
-                                });
-                                %>
-                            <%- table_rows %>
-                            </tr>
+                                <tr>
+                                    <% var table_rows = '';
+                                    unused_ingredients.forEach(function(item){
+                                        table_rows += `<tr><td>${item.ingredient_text}</td>
+                                            <td><form action="/pantry/add" method="POST">
+                                                <input type="submit" value="ADD" class="btn-kitchen-create"/>
+                                                <input type="hidden" name="ingredient_id" value="${item.ingredient_id}">
+                                            </form></td></tr>`;
+                                    });
+                                    %>
+                                <%- table_rows %>
+                                </tr>
                             </table>
                         </div>
             </div>
