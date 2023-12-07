@@ -45,7 +45,19 @@
             <div id="social-media">
                 <div class="text-center" id="sm-object">
                     <div class="text-start" id="title">
-                        <h2> <a><%= post.title %></a> </h2> <h6> <%= post.author %> </h6> 
+                        <h2> <a><%= post.title %></a> </h2> <h6>Posted by: <%= post.author %> </h6> 
+                        <h6>Total likes: <%= post.likes %></h6>
+                        <% if (post.user_has_liked) { %>
+                            <form action="/unlike" method="POST">
+                                <input type="submit" value="Unlike" class="btn-kitchen-create"/>
+                                <input type="hidden" name="recipe_id" value="<%= post.recipe_id %>">
+                            </form>
+                        <% } else { %>
+                            <form action="/like" method="POST">
+                                <input type="submit" value="Like" class="btn-kitchen-create"/>
+                                <input type="hidden" name="recipe_id" value="<%= post.recipe_id %>">
+                            </form>
+                        <% } %>
                     </div>
                     <hr>
                     <div id="info">
