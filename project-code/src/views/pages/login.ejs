@@ -3,23 +3,36 @@
 
 <main>
   <div class="container home-color">
-    <h1 class="title">Login</h1>
+    <div style="margin-top:30px; font-family: Arial, Helvetica, sans-serif;">
     <%- include ('../partials/message') %>
-    <form action="/login" method="POST">
-        <div class="form-group">
-            <label for="username">Username or Email:</label>
-            <input type="username" class="form-control" name="username">
+    </div>
+    
+    <div style="text-align: center; align-items: center; justify-content: center; display: flex; ">
+      <div class="login_box">
+        <h1 class="title">Login</h1>
+          <div style="text-align: left;">
+            <form action="/login" method="POST">
+              <div class="form-group">
+                  <label for="username">Username or Email:</label>
+                  <input type="username" class="form-control" name="username">
+              </div>
+              <div class="form-group">
+                  <label for="password">Password:</label>
+                  <input type="password" class="form-control" name="password">
+              </div>
+              <br>
+              <p style="display: inline;">Don't have an account?</p>
+              <a href="/register" class="hover" style="display: inline;">Register</a>
+              <br>
+              <div style="margin-top: 20px;">
+                <button type="submit" class="btn btn-primary">Login</button>
+              </div>
+            </form>
+          </div>
         </div>
-        <div class="form-group">
-            <label for="password">Password:</label>
-            <input type="password" class="form-control" name="password">
-        </div>
-        <br>
-        <p style="display: inline;">Don't have an account?</p>
-        <a href="/register" class="hover" style="display: inline;">Register</a>
-        <br>
-        <button type="submit" class="btn btn-primary">Login</button>
-    </form>
+      </div>
+    </div>
+
   </div>
 </main>
 

@@ -3,7 +3,7 @@
 
 <div class="container">
     <div class="rec home-color">
-        <h7>12,438 recipes generated</h7>
+        <h7> <%= totalRecipesCount %> recipes generated</h7>
     </div>
     
     <div class="title home-color mx-auto text-center">
@@ -15,7 +15,7 @@
     </div>
 
     <div class="home-color info">
-        <h3>A little more about what we can do for you</h3>
+        <h3 class="home h3title">A little more about what we can do for you</h3>
         
         <p>Need a quick an easy alfredo recipe? We got you. Need to make something with only the items you have on hand? No
         problem. Want a meal with certain macros? You got it. With our AI recipe generator, we can give you any recipe you could
@@ -27,26 +27,47 @@
         in preferences and dietary restrictions.</p>
     </div>
 
-    <div class="center">
-        <button type="button" class="reg btn btn-lg" style="--bs-btn-padding-y: .8rem; --bs-btn-padding-x: 2rem; --bs-btn-font-size: 2.6rem;" >
-            <a href="register">Sign Up</a>
-        </button>
-    </div>
-    <% posts.forEach(function(post){  %>
-    <div id="social-media">
-        <div class="text-center" id="sm-object">
-            <div class="text-start" id="title">
-                <h2> <a><%= post.title %></a> - <%= post.author %></h2>  
-            </div>
-            <hr>
-            <div id="info">
-                <p>
-                    <%= post.content.replaceAll("\\n", "\n") %>
-                </p>
-            </div>
+    <% if (!session) { %>
+        <div class="center">
+            <button type="button" class="reg btn btn-lg"
+                style="--bs-btn-padding-y: .8rem; --bs-btn-padding-x: 2rem; --bs-btn-font-size: 2.6rem;">
+                <a href="register">Sign Up</a>
+            </button>
         </div>
-    </div> 
-    <% } ); %> 
+        <% } %>
+    <% if (session) { %> 
+        <hr class="line">
+        <div class="title home-color mx-auto text-center">
+        
+            <h1>Recent Posts</h1>
+        </div>
+            <% posts.forEach(function(post){  %>
+            <div id="social-media">
+                <div class="text-center" id="sm-object">
+                    <div class="text-start" id="title">
+                        <h2> <a><%= post.title %></a> </h2> <h6>Posted by: <%= post.author %> </h6> 
+                        <h6>Total likes: <%= post.likes %></h6>
+                        <% if (post.user_has_liked) { %>
+                            <form action="/unlike" method="POST">
+                                <input type="submit" value="Unlike" class="btn-kitchen-create"/>
+                                <input type="hidden" name="recipe_id" value="<%= post.recipe_id %>">
+                            </form>
+                        <% } else { %>
+                            <form action="/like" method="POST">
+                                <input type="submit" value="Like" class="btn-kitchen-create"/>
+                                <input type="hidden" name="recipe_id" value="<%= post.recipe_id %>">
+                            </form>
+                        <% } %>
+                    </div>
+                    <hr>
+                    <div id="info">
+                        <p>
+                            <%= post.content.replaceAll("\\n", "\n") %>
+                        </p>
+                    </div>
+                </div>
+            </div> 
+            <% } ); }%> 
 </div>
 
 <%- include ('../partials/footer') %>

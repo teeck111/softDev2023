@@ -61,32 +61,36 @@ app.use(
 );
 
 app.get("/", async (req, res) => {
+  const totalRecipesQuery = 'SELECT COUNT(*) AS total_recipes FROM recipes';
+  const totalRecipesResult = await db.one(totalRecipesQuery);
+  const totalRecipesCount = totalRecipesResult.total_recipes;
+  
   const posts = [];
 
   const posts_sql = `SELECT recipe_text, recipe_name, U.username, R.recipe_id FROM recipes R
     JOIN users U ON R.user_id = U.user_id
     WHERE R.is_posted = TRUE
     ORDER BY R.recipe_id DESC
-    LIMIT 30
+    LIMIT 15
   `
 
   const recipes = await db.manyOrNone(posts_sql);
   for (let i = 0; i < recipes.length; i++){
     const recipe = recipes[i];
-    const likes = await db.manyOrNone("SELECT * FROM users_to_likes WHERE recipe_id = $1", [recipe.recipe_id]);
-
+    const likes = await db.any("SELECT * FROM users_to_likes WHERE recipe_id = $1", [recipe.recipe_id]);
     var user_has_liked = false;
-    if (req.session.user != undefined && req.session.user_id != undefined){
+    if (req.session.user != undefined){
       for (let j = 0; j < likes.length; j++){
-        if (likes[j].user_id == req.session.user.user_id){
+        like_user = parseInt(likes[j].user_id);
+        if (like_user == req.session.user.user_id){
           user_has_liked = true;
           break;
         }
       }
     }
-
     posts.push({
       title: recipe.recipe_name,
+      recipe_id: recipe.recipe_id,
       author: recipe.username,
       content: recipe.recipe_text,
       likes: likes.length,
@@ -94,9 +98,7 @@ app.get("/", async (req, res) => {
     })
   }
 
-  console.log(posts);
-
-  res.render("pages/home.ejs", {session: req.session.user, posts});
+  res.render("pages/home.ejs", {session: req.session.user, posts, totalRecipesCount});
 });
 
 app.get("/login", (req, res) => {
@@ -154,34 +156,32 @@ app.post("/login", async (req, res) => {
 });
 
 app.post("/register", async (req, res) => {
+   if (req.body.email == undefined || req.body.password == undefined || req.body.email.length == 0 || req.body.password.length < 8 || !(/^.+@.+\..+$/.test(req.body.email))){
+      res.status(400).render("pages/register", {session: req.session.user, message: "Please enter a valid username and password.",  error: true});
+      return true;
+  }
+
+
   const hash = await bcrypt.hash(req.body.password, 10);
   const query = 'INSERT INTO users(email, username, password) VALUES ($1,$2,$3)';
   console.log(req.body.email)
   const query2 = `SELECT * FROM users WHERE email = $1;`
-
+  
   const check_exist = await db.any(query2, [req.body.email])
   if (check_exist.length > 0){
     res.render('pages/login', {session: req.session.user})
     return
   }
-  /*db.one(query2)
-  .then(function(){
-    //res.redirect('/login');
-    res.render("pages/register");
-  })
-  .catch(error => {*/
-    //console.log('b')
-    //console.log(error)
-    
+
+    res.redirect("/login")
+  
     db.any(query, [
       req.body.email,
       'default user',
       hash
 
 
-    ])
-    
-    res.redirect("/login")
+    ])    
 
   //})
   
@@ -224,12 +224,13 @@ app.get("/kitchen", (req, res) => {
     .then((recipes) => {
       // Render the 'kitchen' page with the 'recipes' array and 'user_id'
       console.log('User ID:', req.session.user.user_id);
-      res.render('pages/kitchen', { recipes, session: req.session.user, user_id: req.session.user.user_id, display_recipe_index: req.query.recipe_index, bedrockreturn: null });
+      res.render('pages/kitchen', { recipes, session: req.session.user, user_id: req.session.user.user_id, display_recipe_index: req.query.recipe_index, bedrockreturn: null, restrictionChoice: 'restricted' });
 
     })
     .catch((err) => {
       res.render("pages/kitchen", {
         recipes: [],
+        restrictionChoice: 'restricted',
         error: true,
         message: err.message,
         session: req.session.user,
@@ -280,7 +281,7 @@ app.post('/kitchen/delete/:recipeId', async (req, res) => {
 
 
 app.get('/welcome', (req, res) => {
-  res.json({status: 'success', message: 'Welcome!'});
+  res.status(200);
 });
 
 app.get("/api/posts_feed", (req, res) => { //placeholder api for posts 
@@ -340,7 +341,7 @@ app.post("/pantry/delete", async (req, res) => {
                         WHERE
                           user_id = $1
                         AND 
-                          ingredient_id = $2;`
+                          ingredient_id = $2;`;
   var updated_ingredients = await db.none(delete_query, [req.session.user.user_id, req.body.ingredient_id]);
   return res.redirect("/pantry");
 });
@@ -352,7 +353,6 @@ app.post("/pantry/add", async (req, res) => {
                         ($1, $2);`;
   var updated_ingredients = await db.none(add_query, [req.session.user.user_id, req.body.ingredient_id]);
   return res.redirect("/pantry");
-
 });
 
 app.post('/pantry/search', async (req, res) => {
@@ -390,45 +390,38 @@ app.post('/pantry/search', async (req, res) => {
     });
 });
 
-app.post("/api/like", async (req, res) => {
-
+app.post("/like", async (req, res) => {
+  var recipe_id = parseInt(req.body.recipe_id);
+  var like_query = `INSERT INTO users_to_likes (user_id, recipe_id)
+                    SELECT $1, $2
+                    WHERE NOT EXISTS (
+                      SELECT 1 FROM users_to_likes
+                      WHERE recipe_id = $2
+                      AND user_id = $1
+                    );`;
+  var updated_likes = await db.none(like_query, [req.session.user.user_id, recipe_id]);
+  return res.redirect("/");
 });
-app.post("/api/unlike", async (req, res) => {
 
+app.post("/unlike", async (req, res) => {
+  var recipe_id = parseInt(req.body.recipe_id);
+  // console.log("Begin dislike api call");
+  // var table_query = 'SELECT * FROM users_to_likes';
+  // var table = await db.any(table_query);
+  // console.log(table);
+  // console.log(req.body.recipe_id);
+  // console.log(req.session.user.user_id);
+  var unlike_query = `DELETE FROM 
+                        users_to_likes
+                      WHERE 
+                        user_id = $1
+                      AND
+                        recipe_id = $2;`;
+  var updated_likes = await db.none(unlike_query, [req.session.user.user_id, recipe_id]);
+  // table = await db.any(table_query);
+  // console.log(table);
+  return res.redirect('/');
 }); //todo
-
-app.post('/pantry/search', async (req, res) => {
-  var search_ingredients = 
-  `SELECT *
-  FROM ingredients i
-  WHERE NOT EXISTS (
-    SELECT 1
-    FROM users_to_ingredients u_to_i
-    WHERE u_to_i.ingredient_id = i.ingredient_id
-    AND u_to_i.user_id = $1
-  )
-  AND LOWER(i.ingredient_text) LIKE LOWER('${req.body.search_val}%')
-  ORDER BY i.ingredient_text ASC;`;
-  var unused_ingredients = await db.any(search_ingredients, [req.session.user.user_id]);
-  db.any(all_user_ingredients, [req.session.user.user_id])
-    .then((ingredients) => {
-      res.render("pages/pantry.ejs", {
-        ingredients,
-        unused_ingredients,
-        session: req.session.user
-      });
-    })
-    .catch((err) => {
-      res.render("pages/pantry.ejs", {
-        ingredients: [],
-        unused_ingredients: [],
-        error: true,
-        message: err.message,
-        session: req.session.user
-      });
-    });
-});
-
 
 app.get('/settings', async (req, res) => {
   const user_id = req.session.user.user_id;
@@ -489,11 +482,18 @@ app.post('/kitchen/create', async (req, res) => {
   if(restricted === true)
   {
     try{
-    const ingredients = await db.any('SELECT ingredients.ingredient_text FROM ingredients INNER JOIN users_to_ingredients ON ingredients.ingredient_id = users_to_ingredients.ingredient_id WHERE users_to_ingredients.user_id = $1', [user_id])
+    const ingredients = await db.any('SELECT ingredients.ingredient_text FROM ingredients INNER JOIN users_to_ingredients ON ingredients.ingredient_id = users_to_ingredients.ingredient_id WHERE users_to_ingredients.user_id = $1', [user_id]);
+    ingredients.forEach(ingredient => {
+      console.log(ingredient.ingredient_text);
+    });
+
+    const ingredientTexts = ingredients.map(ingredient => ingredient.ingredient_text).join(", ");
+    console.log("Comma-separated ingredients: " + ingredientTexts);
+
     query = `\n\nHuman: 
     Generate a recipe that aligns with the user's input and ingredient preferences. User's input: "${prompt}". 
     The recipe must only utilize ingredients from the following list. Do not return a recipe that uses ingredients that are not present in the list.
-    If there are not enough ingredients in the list then return "Not enough ingredients". Ingredient list: ${ingredients}.
+    If there are not enough ingredients in the list then return "Not enough ingredients". Ingredient list: ${ingredientTexts}.
     The recipe must also comply with the following dietary restrictions: ${dietaryRestrictions.d_restric}.
     Output should include only the recipe instructions and ingredients. Don't add an introductory statement like " Here is a pasta recipe:"
     \n\nAssistant:
@@ -583,8 +583,8 @@ app.post('/kitchen/create', async (req, res) => {
   };
 
   // Render the kitchen page with the Bedrock API response data
-  const recipes = await db.any("SELECT * FROM recipes WHERE user_id = $1", [user_id])
-  res.render("pages/kitchen", { recipes, bedrockreturn: bedrockreturn, session: req.session.user, user_id: user_id});
+  const recipes = await db.any("SELECT * FROM recipes WHERE user_id = $1 ORDER BY recipe_id DESC LIMIT 10", [user_id])
+  res.render("pages/kitchen", { recipes, bedrockreturn: bedrockreturn, session: req.session.user, user_id: user_id, restrictionChoice: restrictionChoice});
   return;
   } catch (error) {
       console.error('Error creating recipe:', error);
@@ -667,6 +667,18 @@ app.post('/kitchen/update/:recipeId', async (req, res) => {
       }
 });
 
+app.post('/kitchen/postRecipe', async (req, res) => {
+  const recipeId = req.body.recipeId;
+  console.log("it could be postin")
+  try {
+      const updateQuery = 'UPDATE recipes SET is_posted = TRUE WHERE recipe_id = $1';
+      await db.none(updateQuery, [recipeId]);
+      res.redirect('/kitchen');
+  } catch (error) {
+      console.error('Error updating recipe:', error);
+      res.status(500).send('Internal server error');
+  }
+});
 
 
 app.get("/logout", (req, res) => {
@@ -674,5 +686,5 @@ app.get("/logout", (req, res) => {
   res.redirect("/")
 });
 
-app.listen(3000);
+module.exports = app.listen(3000);
 console.log("Server listening on port 3000"); 

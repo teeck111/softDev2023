@@ -14,18 +14,19 @@
         <div class="collapse navbar-collapse" id="navbar-collapse">
           <ul class="navbar-nav me-auto">
                 <!-- TO-DO: For Discover, add a <a> tag with an attribute href to call the '/discover' API -->
-                    <a class="nav-link" href="/" style="font-weight: bold;">GenerAte</a>
-                    <a class="nav-link" href="/kitchen">Kitchen</a>
-                    <a class="nav-link" href="/pantry">Pantry</a>
-                    <a class="nav-link" href="/favorites">Favorites</a>
-                    <a class="nav-link" href="/settings">Settings</a>
+
+                    <a class="nav-link navigation" href="/" style="font-weight: bold;">GenerAte</a>
+                    <a class="nav-link navigation" href="/kitchen">Kitchen</a>
+                    <a class="nav-link navigation" href="/pantry">Pantry</a>
+                    <a class="nav-link navigation" href="/favorites">Favorites</a>
+                    <a class="nav-link navigation" href="/settings">Settings</a>
           </ul>
           <div class="nav-item me-1">
             <!-- TO-DO: For Logout, add a <a> tag with an attribute href to call the '/logout API -->
             <% if (session)  { %>
-              <a class="nav-link" href="/logout">Logout</a>
+              <a class="nav-link navigation" href="/logout">Logout</a>
               <% } else { %> 
-                <a class="nav-link" href="/login">Login</a>
+                <a class="nav-link navigation" href="/login">Login</a>
               <% } %> 
           </div>
         </div>

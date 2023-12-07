@@ -1,0 +1,28 @@
+Scrum Meeting 3 | 12.05.23 :
+
+    General Notes:
+      - Good feedback on the final product of the website
+      - Going over the presentation requirements
+      - Bring a backup laptop to class on presentation day 
+      - All teams will be viewing the other groups
+      - Questions will be asked near the end of the presentations by peers and educators
+      - If presentation is ready before the class time we can send to TA and get assistance
+
+    i. Decisions made
+      - How to format the presentation
+      - Add a future enhancements slide (what would we have done with more time/resources)
+      - Do a dry run of the presentation before class time
+      - All team members are required to speak during the presentation
+      - **MUST** push all commits to main branch by EOD Thursday
+
+    ii. Alternative actions/options discussed
+      - None
+
+    iii. Follow-up items, including agreed-on roles and responsibilities
+      - Team Responsibilities:
+        1. Tyler: Presentation
+        2. Grayson: Presentation
+        3. Johnny: Presentation
+        4. Alex: Presentation
+        5. Suhana: Presentation
+        6. Aniket: Presentation
