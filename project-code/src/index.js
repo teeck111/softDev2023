@@ -704,6 +704,34 @@ app.post('/kitchen/postRecipe', async (req, res) => {
   }
 });
 
+app.post("/pantry/uniqueadd", async (req, res) => {
+  const ingredientName = req.body.ingredient_name;
+  const userId = req.session.user.user_id;
+  // no null entry
+  if(!ingredientName){
+    return res.redirect('/pantry');
+  }
+
+  try {
+    // prevent duplicates
+    let ingredient = await db.oneOrNone('SELECT ingredient_id FROM ingredients WHERE ingredient_text = $1', [ingredientName]);
+
+    if (!ingredient) {
+      // Insert new ingredient if it doesn't exist
+      ingredient = await db.one('INSERT INTO ingredients (ingredient_text) VALUES ($1) RETURNING ingredient_id', [ingredientName]);
+    }
+
+    // Link ingredient to the user
+    await db.none('INSERT INTO users_to_ingredients (user_id, ingredient_id) VALUES ($1, $2)', [userId, ingredient.ingredient_id]);
+
+    res.redirect('/pantry'); // Redirect to the pantry page
+  } catch (error) {
+    console.error('Error:', error);
+    res.status(500).send('Internal server error');
+  }
+});
+
+
 
 app.get("/logout", (req, res) => {
   req.session.destroy();
