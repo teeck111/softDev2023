@@ -133,8 +133,13 @@ INSERT INTO ingredients (ingredient_text) VALUES
  ('Ground Beef'), ('Ground Turkey'), ('Ground Pork'), ('Ground Chicken'), ('Chicken Breast'), ('Chicken Thighs'), ('Chicken Wings'), ('Steak'), 
 ('Sirloin'), ('Ribeye'), ('Tenderloin'), ('Pork Chops'), ('Pork Tenderloin'), ('Pork Ribs'), ('Lamb Chops'), ('Ground Lamb'), ('Turkey Breast'),
  ('Ground Bison'), ('Bison Steaks'), ('Veal'), ('Heavy Cream'), ('Whipping Cream'), ('Half and Half'), ('Kidney Beans'), ('Black Beans'), 
- ('Pinto Beans'), ('Cannellini Beans'), ('Garbanzo Beans'), ('Pomegranate'), ('Cranberries'), ('Goji Berries'), ('Mulberries'), ('Currants'), 
- ('Acai Berries'), ('Elderberries'), ('Barberries'); 
+ ('Pinto Beans'), ('Cannellini Beans'), ('Garbanzo Beans'), ('Cranberries'), ('Goji Berries'), ('Mulberries'), ('Currants'), 
+ ('Acai Berries'), ('Elderberries'), ('Barberries'), ('Potatoes'), ('Onions'), ('Garlic'), ('Carrots'), ('Celery'), ('Bell Peppers'), ('Cucumbers'), 
+ ('Zucchini'), ('Squash'), ('Eggplant'), ('Broccoli'), ('Cauliflower'), ('Brussels Sprouts'), ('Cabbage'), ('Lettuce'), ('Spinach'), ('Kale'), ('Arugula'), 
+ ('Radishes'), ('Turnips'), ('Beets'), ('Artichokes'), ('Asparagus'), ('Green Beans'), ('Peas'), ('Corn'), ('Mushrooms'), ('Leeks'), ('Scallions'), 
+ ('Fennel'), ('Ginger Root'), ('Turmeric Root'), ('Horseradish'), ('Radishes'), ('Sweet Potatoes'), ('Yams'), ('Pumpkin'), ('Butternut Squash'), 
+ ('Acorn Squash'), ('Spaghetti Squash'), ('Kabocha Squash'), ('Delicata Squash'), ('Honeydew Melon'), ('Cantaloupe'), ('Watermelon'), ('Dragon Fruit'), 
+ ('Starfruit'), ('Passion Fruit'), ('Persimmons'), ('Lychee'), ('Guava'), ('Pomegranate'); 
 
 INSERT INTO recipes (recipe_name, user_id, recipe_text, is_starred, is_posted) VALUES 
 ('Garlic Pasta', 1, 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.\nAliquet sagittis id consectetur purus ut faucibus pulvinar elementum. Dapibus ultrices in iaculis nunc sed augue. Pellentesque sit amet porttitor eget dolor morbi non arcu risus.\nArcu odio ut sem nulla pharetra. Iaculis nunc sed augue lacus viverra vitae congue. Nunc consequat interdum varius sit. Egestas fringilla phasellus faucibus scelerisque eleifend.\n', FALSE, TRUE),
