@@ -19,6 +19,8 @@ Grayson Richard - Tyler Kivelson - Johnny Wilcox - Suhanna Zeutzius - Alex McDon
 # WHAT YOU NEED TO RUN THIS APP: 
 Access to the internet, Docker, the downloaded repository <br>
 
+# Video Demo
+https://youtu.be/_TewRFznp0g
 
 # INSTRUCTIONS ON HOW TO RUN LOCALLY: 
 Must have an .env file with postgres user, db and password. Additionaly you need the AWS access key ID, AWS secret access key, and AWS_REGION within the .env file.
